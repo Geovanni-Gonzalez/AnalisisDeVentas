@@ -1,0 +1,32 @@
+[
+  {
+    "idVenta":1,
+    "fecha":"2025-10-01",
+    "idProducto":"P001",
+    "nombreProducto":"Laptop",
+    "categoria":"Electrónica",
+    "cantidad":2,
+    "precioUnitario":800,
+    "totalVenta":1600
+  },
+  {
+    "idVenta":2,
+    "fecha":"2025-10-01",
+    "idProducto":"P002",
+    "nombreProducto":"Mouse",
+    "categoria":"Accesorios",
+    "cantidad":5,
+    "precioUnitario":20,
+    "totalVenta":100
+  },
+  {
+    "idVenta":3,
+    "fecha":"2025-10-02",
+    "idProducto":"P003",
+    "nombreProducto":"Escritorio",
+    "categoria":"Muebles",
+    "cantidad":1,
+    "precioUnitario":200,
+    "totalVenta":200
+  }
+]

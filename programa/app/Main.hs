@@ -1,6 +1,15 @@
-module Main (main) where
+{-# LANGUAGE OverloadedStrings #-}
 
-import Lib
+module Main where
+
+import Utilidades
 
 main :: IO ()
-main = putStrLn "Hello, Haskell!"
+main = do
+    ventasActuales <- cargarVentas "src/data/Ventas.json"
+    case ventasActuales of
+        Left err ->
+            putStrLn $ "Error al cargar ventas: " ++ err
+        Right ventas -> do
+            putStrLn "Ventas cargadas:"
+            mapM_ print ventas
