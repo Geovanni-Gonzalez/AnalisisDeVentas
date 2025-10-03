@@ -1,0 +1,32 @@
+[
+  {
+    "idVenta": 4,
+    "fecha": "2025-10-02",
+    "idProducto": "P004",
+    "nombreProducto": "Teclado",
+    "categoria": "Accesorios",
+    "cantidad": 1,
+    "precioUnitario": 40,
+    "totalVenta": 40
+  },
+  {
+    "idVenta": 5,
+    "fecha": "2025-10-02",
+    "idProducto": "P005",
+    "nombreProducto": "Monitor",
+    "categoria": "Electrónica",
+    "cantidad": 2,
+    "precioUnitario": 150,
+    "totalVenta": 300
+  },
+  {
+    "idVenta": 6,
+    "fecha": "2025-10-02",
+    "idProducto": "P006",
+    "nombreProducto": "Silla Gamer",
+    "categoria": "Muebles",
+    "cantidad": 1,
+    "precioUnitario": 200,
+    "totalVenta": 200
+  }
+]
