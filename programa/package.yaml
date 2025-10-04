@@ -26,6 +26,7 @@ dependencies:
 - directory
 - text
 - containers
+- time
 
 ghc-options:
 - -Wall
@@ -56,7 +57,7 @@ executables:
     - directory
     - text
     - containers
-
+    - time
 tests:
   programa-test:
     main:                Spec.hs
@@ -68,3 +69,4 @@ tests:
     dependencies:
     - programa
     - aeson
+    - time
