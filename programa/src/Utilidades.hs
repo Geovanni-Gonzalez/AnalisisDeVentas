@@ -19,10 +19,10 @@ import Venta
 
 -- -----------------------------------------------------------------------------
 -- | Carga una lista de ventas desde un archivo JSON.
---
+--  Autor: Geovanni Gonzalez
 -- La función intenta decodificar el contenido del archivo como una lista de
 -- 'Venta'. Retorna un 'Either' con un mensaje de error o la lista de ventas.
---
+-- 
 -- ==== Parámetros
 --
 -- * 'ruta' : Ruta del archivo JSON a cargar.
@@ -44,7 +44,7 @@ cargarVentasDeArchivo ruta = do
 
 -- -----------------------------------------------------------------------------
 -- | Importa ventas desde otro archivo JSON y las agrega a la lista existente.
---
+--  Autor: Geovanni Gonzalez
 -- Esta función lee un archivo JSON, decodifica la lista de ventas y las
 -- agrega a la lista existente. Luego, sobrescribe el archivo principal
 -- "src/data/Ventas.json" con la lista actualizada.
@@ -76,7 +76,7 @@ importarVenta ruta listaVentasActual = do
 
 -- -----------------------------------------------------------------------------
 -- | Convierte el nombre de un día de la semana en inglés a español.
---
+--  Autor: Geovanni Gonzalez
 -- Esta función se utiliza para mostrar resultados más amigables para el
 -- usuario hispanohablante.
 --

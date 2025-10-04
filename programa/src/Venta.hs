@@ -52,7 +52,7 @@ instance FromJSON Venta
 
 -- -----------------------------------------------------------------------------
 -- | Determina el mes con mayor monto de ventas.
--- 
+--  Autor: Geovanni Gonzalez
 -- Esta función agrupa las ventas por mes (formato "YYYY-MM") y suma el total
 -- de cada mes, devolviendo el mes con mayor suma.
 --
@@ -87,7 +87,7 @@ mesMayorVenta ventas =
 
 -- -----------------------------------------------------------------------------
 -- | Calcula la tasa de crecimiento o decrecimiento de ventas entre trimestres.
---
+--  Autor: Geovanni Gonzalez
 -- El cálculo se basa en comparar el total del trimestre indicado con el
 -- trimestre anterior.
 --
@@ -118,7 +118,7 @@ tasaCrecimientoTrimestral ventas trimestre =
 
 -- -----------------------------------------------------------------------------
 -- | Genera un resumen de ventas agrupado por trimestre.
---
+--  Autor: Geovanni Gonzalez
 -- Cada trimestre se identifica como "YYYY-Tx".
 --
 -- ==== Parámetros
@@ -145,7 +145,7 @@ resumenTrimestral ventas = foldl' agruparPorTrimestre [] ventas
 
 -- -----------------------------------------------------------------------------
 -- | Obtiene el trimestre de una fecha.
---
+--  Autor: Geovanni Gonzalez
 -- ==== Parámetros
 --
 -- * 'fechaStr' : Fecha en formato "YYYY-MM-DD".
@@ -171,7 +171,7 @@ obtenerTrimestre fechaStr =
 
 -- -----------------------------------------------------------------------------
 -- | Devuelve el trimestre anterior dado un trimestre.
---
+--  Autor: Geovanni Gonzalez
 -- ==== Parámetros
 --
 -- * 'str' : Trimestre actual en formato "YYYY-Tx".
@@ -197,10 +197,10 @@ anterior str =
 
 -- -----------------------------------------------------------------------------
 -- | Determina el día de la semana con más ventas.
---
+--  Autor: Geovanni Gonzalez
 -- Esta función cuenta la cantidad de ventas por día de la semana y devuelve
 -- el día con mayor actividad.
---
+--  
 -- ==== Parámetros
 --
 -- * 'ventas' : Lista de ventas a analizar.
@@ -230,7 +230,7 @@ diaMasActivo ventas =
 
 -- -----------------------------------------------------------------------------
 -- | Convierte una fecha "YYYY-MM-DD" al día de la semana.
---
+--  Autor: Geovanni Gonzalez
 -- ==== Parámetros
 --
 -- * 'fechaStr' : Fecha a convertir.
