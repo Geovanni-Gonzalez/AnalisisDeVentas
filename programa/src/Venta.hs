@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE OverloadedStrings #-}
 -- |
 -- Módulo      : Venta
 -- Descripción : Gestión y análisis de ventas
@@ -18,7 +19,7 @@ import Data.Aeson (ToJSON, FromJSON)
 import Data.Time (Day, parseTimeM, defaultTimeLocale, formatTime)
 import Data.Maybe (fromMaybe)
 import Data.List (foldl')
-
+import qualified Data.Map as Map
 -- -----------------------------------------------------------------------------
 -- | Representa una venta realizada en un sistema de gestión.
 -- 
@@ -247,3 +248,70 @@ diaMasActivo ventas =
 diaSemana :: String -> Maybe String
 diaSemana fechaStr =
   formatTime defaultTimeLocale "%A" <$> (parseTimeM True defaultTimeLocale "%Y-%m-%d" fechaStr :: Maybe Day)
+
+
+
+-- -----------------------------------------------------------------------------
+-- | Calcula el total de ventas en una lista de ventas.
+--  Autor: Geovanni Gonzalez
+-- ==== Parámetros
+-- * 'ventas' : Lista de ventas a sumar.
+-- ==== Retorno
+-- Total de ventas como un entero.
+-- ==== Ejemplo
+-- >>> totalDeVentas [Venta 1 "2025-01-10" "P1" "Prod" "Cat" 1 100 100,
+--                    Venta 2 "2025-01-15" "P2" "Prod2" "Cat2" 2 150 300]
+-- 400
+totalDeVentas :: [Venta] -> Int
+totalDeVentas ventas = sum $ map totalVenta ventas
+
+-- -----------------------------------------------------------------------------
+-- | Muestra el total de ventas mensuales y anuales.
+--  Autor: Geovanni Gonzalez
+-- ==== Parámetros
+-- * 'ventas' : Lista de ventas a analizar.
+-- ==== Retorno
+-- Lista de tuplas con (Mes "YYYY-MM", TotalVentas).
+-- ==== Ejemplo
+-- >>> totalVentasMensualesAnuales [Venta 1 "2025-01-10" "P1" "Prod" "Cat" 1 100 100,
+--                                    Venta 2 "2025-01-15" "P2" "Prod2" "Cat2" 2 150 300]
+-- [("2025-01",400)]
+totalVentasMensualesAnuales :: [Venta] -> [(String, Int)]
+totalVentasMensualesAnuales ventas =
+  map (\(m, vs) -> (m, sum $ map totalVenta vs)) (Map.toList $ agruparPorMes ventas)
+  where
+    agruparPorMes :: [Venta] -> Map.Map String [Venta]
+    agruparPorMes vs =
+      foldr
+        (\v acc ->
+            let mes = take 7 (fecha v)  -- "YYYY-MM"
+            in Map.insertWith (++) mes [v] acc)
+        Map.empty
+        vs
+
+-- -----------------------------------------------------------------------------
+-- | Muestra el promedio de ventas por categoría por año.
+--  Autor: Geovanni Gonzalez
+-- ==== Parámetros
+-- * 'ventas' : Lista de ventas a analizar.
+-- ==== Retorno
+-- Lista de tuplas con (Categoría, PromedioVentas).
+-- ==== Ejemplo
+-- >>> promedioVentasPorCategoriaAnual [Venta 1 "2025-01-10" "P1" "Prod" "Cat1" 1 100 100,
+--                                        Venta 2 "2025-01-15" "P2" "Prod2" "Cat1" 2 150 300,
+--                                        Venta 3 "2025-02-20" "P3" "Prod3" "Cat2" 1 200 200]
+-- [("Cat1",200.0),("Cat2",200.0)]
+promedioVentasPorCategoriaAnual :: [Venta] -> [(String, Double)]
+promedioVentasPorCategoriaAnual ventas =
+  map calcularPromedio (Map.toList $ agruparPorCategoria ventas)
+  where
+    agruparPorCategoria :: [Venta] -> Map.Map String [Int]
+    agruparPorCategoria vs =
+      foldr
+        (\v acc -> Map.insertWith (++) (categoria v) [totalVenta v] acc)
+        Map.empty
+        vs
+    calcularPromedio (cat, montos) =
+      let total = sum montos
+          count = fromIntegral (length montos)
+      in (cat, fromIntegral total / count)
