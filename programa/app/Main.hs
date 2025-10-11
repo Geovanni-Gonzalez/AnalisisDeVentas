@@ -4,6 +4,7 @@ module Main where
 
 import Utilidades
 import Venta
+import Procesamiento
 import Data.List (sortOn)
 import Text.Printf (printf)
 import Data.Maybe (fromMaybe)
@@ -61,4 +62,23 @@ main = do
             let promediosCategorias = promedioVentasPorCategoriaAnual ventas
             putStrLn "Promedio de ventas por categoría anual:"
             mapM_ (\(cat, promedio) -> putStrLn $ cat ++ ": " ++ printf "%.2f" promedio) promediosCategorias
+            putStrLn "-----------------------------"
+
+            -- === PROCESAMIENTO DE DATOS ===
+            putStrLn "\n=== PROCESAMIENTO DE DATOS ==="
+            putStrLn "Aplicando técnicas de limpieza de datos...\n"
+
+            -- Procesar datos completo con diferentes técnicas
+            let resultadosProcesamiento = procesarDatosCompleto ventas Media Mediana
+            
+            -- Mostrar resumen del procesamiento
+            putStrLn $ mostrarResumenProcesamiento resultadosProcesamiento
+
+            -- Obtener las ventas finales procesadas
+            let ventasProcesadasFinales = case resultadosProcesamiento of
+                    [] -> ventas
+                    rs -> ventasProcesadas (last rs)
+            
+            putStrLn $ "Ventas originales: " ++ show (length ventas)
+            putStrLn $ "Ventas después del procesamiento: " ++ show (length ventasProcesadasFinales)
             putStrLn "-----------------------------"
