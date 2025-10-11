@@ -208,5 +208,15 @@
         "nombreProducto": "WebCam",
         "precioUnitario": 75,
         "totalVenta": 225
+    },
+    {
+        "cantidad": 3,
+        "categoria": "Electrónica",
+        "fecha": "2025-10-10",
+        "idProducto": "P022",
+        "idVenta": 22,
+        "nombreProducto": "Microfono",
+        "precioUnitario": 135,
+        "totalVenta": 405
     }
 ]
