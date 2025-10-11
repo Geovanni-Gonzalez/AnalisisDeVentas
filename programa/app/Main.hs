@@ -8,6 +8,8 @@ import Procesamiento
 import Data.List (sortOn)
 import Text.Printf (printf)
 import Data.Maybe (fromMaybe)
+import qualified Data.ByteString.Lazy as B
+import Data.Aeson.Encode.Pretty (encodePretty)
 
 main :: IO ()
 -- Main para probar las funciones implementadas (Análisis temporal y carga de datos)
@@ -81,4 +83,10 @@ main = do
             
             putStrLn $ "Ventas originales: " ++ show (length ventas)
             putStrLn $ "Ventas después del procesamiento: " ++ show (length ventasProcesadasFinales)
+
+            -- Guardar las ventas procesadas en un nuevo archivo
+            let rutaArchivoProcesado = "src/data/Ventas_procesadas.json"
+            B.writeFile rutaArchivoProcesado (encodePretty ventasProcesadasFinales)
+            putStrLn $ "Las ventas procesadas se han guardado en: " ++ rutaArchivoProcesado
+
             putStrLn "-----------------------------"
