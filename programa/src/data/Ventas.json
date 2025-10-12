@@ -18,5 +18,8 @@
     {"cantidad":3,"categoria":"Accesorios","fecha":"2023-05-09","idProducto":"P017","idVenta":17,"nombreProducto":"USB","precioUnitario":25,"totalVenta":75},
     {"cantidad":1,"categoria":"Muebles","fecha":"2022-02-14","idProducto":"P018","idVenta":18,"nombreProducto":"Silla Oficina","precioUnitario":120,"totalVenta":120},
     {"cantidad":2,"categoria":"Electrónica","fecha":"2025-08-08","idProducto":"P019","idVenta":19,"nombreProducto":"Proyector","precioUnitario":400,"totalVenta":800},
-    {"cantidad":5,"categoria":"Accesorios","fecha":"2024-10-31","idProducto":"P020","idVenta":20,"nombreProducto":"Funda Celular","precioUnitario":12,"totalVenta":60}
+    {"cantidad":5,"categoria":"Accesorios","fecha":"2024-10-31","idProducto":"P020","idVenta":20,"nombreProducto":"Funda Celular","precioUnitario":12,"totalVenta":60},
+    {"cantidad":0,"categoria":"Electrónica","fecha":"2025-10-01","idProducto":"P021","idVenta":21,"nombreProducto":"WebCam","precioUnitario":75,"totalVenta":0},
+    {"cantidad":3,"categoria":"Electrónica","fecha":"2025-10-10","idProducto":"P022","idVenta":22,"nombreProducto":"Microfono","precioUnitario":0,"totalVenta":150},
+    {"cantidad":10,"categoria":"Muebles","fecha":"2025-12-25","idProducto":"P999","idVenta":3,"nombreProducto":"Producto Falso","precioUnitario":50,"totalVenta":500}
 ]

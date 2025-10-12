@@ -27,6 +27,7 @@ dependencies:
 - text
 - containers
 - time
+- aeson-pretty
 
 ghc-options:
 - -Wall
@@ -58,6 +59,7 @@ executables:
     - text
     - containers
     - time
+    - aeson-pretty
 tests:
   programa-test:
     main:                Spec.hs
