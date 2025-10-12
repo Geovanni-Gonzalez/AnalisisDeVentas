@@ -315,3 +315,27 @@ promedioVentasPorCategoriaAnual ventas =
       let total = sum montos
           count = fromIntegral (length montos)
       in (cat, fromIntegral total / count)
+
+-- -----------------------------------------------------------------------------
+-- | Busca ventas dentro de un rango de fechas específico.
+--  Autor: Gerny Diaz
+--  Filtra la lista de ventas para devolver solo aquellas cuya fecha se
+--  encuentra entre la fecha de inicio y la fecha de fin (inclusivas).
+--
+-- ==== Parámetros
+--
+-- * 'fechaInicio' : Fecha inicial del rango en formato "YYYY-MM-DD".
+-- * 'fechaFin'    : Fecha final del rango en formato "YYYY-MM-DD".
+-- * 'ventas'      : Lista de ventas a filtrar.
+--
+-- ==== Retorno
+--
+-- * Lista de 'Venta' que cumplen con el criterio del rango de fechas.
+--
+-- ==== Ejemplo
+--
+-- >>> buscarVentasPorRangoDeFechas "2025-10-01" "2025-10-02" [Venta 1 "2025-10-01" "P1" "Prod" "Cat" 1 100 100, Venta 3 "2025-10-03" "P3" "Prod" "Cat" 1 100 100]
+-- [Venta {idVenta = 1, fecha = "2025-10-01", ...}]
+buscarVentasPorRangoDeFechas :: String -> String -> [Venta] -> [Venta]
+buscarVentasPorRangoDeFechas fechaInicio fechaFin ventas =
+  filter (\venta -> let f = fecha venta in f >= fechaInicio && f <= fechaFin) ventas

@@ -88,5 +88,20 @@ main = do
             let rutaArchivoProcesado = "src/data/Ventas_procesadas.json"
             B.writeFile rutaArchivoProcesado (encodePretty ventasProcesadasFinales)
             putStrLn $ "Las ventas procesadas se han guardado en: " ++ rutaArchivoProcesado
+            putStrLn "-----------------------------"
 
+            -- === BÚSQUEDA ESPECÍFICA POR RANGO DE FECHAS ===
+            putStrLn "\n=== BÚSQUEDA POR RANGO DE FECHAS ==="
+            putStrLn "Ingrese la fecha de inicio (YYYY-MM-DD):"
+            fechaInicio <- getLine
+            putStrLn "Ingrese la fecha de fin (YYYY-MM-DD):"
+            fechaFin <- getLine
+
+            let ventasEnRango = buscarVentasPorRangoDeFechas fechaInicio fechaFin ventas
+            
+            if null ventasEnRango
+            then putStrLn "No se encontraron ventas en el rango de fechas especificado."
+            else do
+                putStrLn $ "\nVentas encontradas entre " ++ fechaInicio ++ " y " ++ fechaFin ++ ":"
+                mapM_ print ventasEnRango
             putStrLn "-----------------------------"
