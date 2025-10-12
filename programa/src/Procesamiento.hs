@@ -3,7 +3,7 @@
 -- Módulo      : Procesamiento
 -- Descripción : Funciones para procesamiento y limpieza de datos de ventas
 -- Licencia    : MIT
--- Autor       : Geovanni Gonzalez, Gerny Diaz, Daryll Martinez
+-- Autor       : Gerny Diaz
 -- Fecha       : 2025-10-10
 --
 -- Este módulo proporciona funciones para procesar y limpiar datos de ventas,
