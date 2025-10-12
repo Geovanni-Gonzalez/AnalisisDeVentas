@@ -227,7 +227,7 @@ eliminarDuplicados ventas =
         , tecnicaUtilizada = "Eliminación de duplicados"
         }
   where
-    claveUnica venta = (idVenta venta, fecha venta, idProducto venta, cantidad venta)
+    claveUnica venta = idVenta venta
 
 -- -----------------------------------------------------------------------------
 -- | Procesa completamente una lista de ventas aplicando todas las técnicas

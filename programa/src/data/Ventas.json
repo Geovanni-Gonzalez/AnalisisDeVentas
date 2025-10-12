@@ -1,7 +1,6 @@
 [
     {"cantidad":2,"categoria":"Electrónica","fecha":"2025-10-01","idProducto":"P001","idVenta":1,"nombreProducto":"Laptop","precioUnitario":800,"totalVenta":1600},
     {"cantidad":5,"categoria":"Accesorios","fecha":"2025-10-01","idProducto":"P002","idVenta":2,"nombreProducto":"Mouse","precioUnitario":20,"totalVenta":100},
-    {"cantidad":5,"categoria":"Accesorios","fecha":"2025-10-01","idProducto":"P002","idVenta":2,"nombreProducto":"Mouse","precioUnitario":20,"totalVenta":100},
     {"cantidad":1,"categoria":"Muebles","fecha":"2025-10-02","idProducto":"P003","idVenta":3,"nombreProducto":"Escritorio","precioUnitario":200,"totalVenta":200},
     {"cantidad":3,"categoria":"Accesorios","fecha":"2025-10-02","idProducto":"P004","idVenta":4,"nombreProducto":"Teclado","precioUnitario":50,"totalVenta":150},
     {"cantidad":2,"categoria":"Electrónica","fecha":"2025-10-02","idProducto":"P005","idVenta":5,"nombreProducto":"Monitor","precioUnitario":150,"totalVenta":300},
@@ -21,5 +20,6 @@
     {"cantidad":2,"categoria":"Electrónica","fecha":"2025-08-08","idProducto":"P019","idVenta":19,"nombreProducto":"Proyector","precioUnitario":400,"totalVenta":800},
     {"cantidad":5,"categoria":"Accesorios","fecha":"2024-10-31","idProducto":"P020","idVenta":20,"nombreProducto":"Funda Celular","precioUnitario":12,"totalVenta":60},
     {"cantidad":0,"categoria":"Electrónica","fecha":"2025-10-01","idProducto":"P021","idVenta":21,"nombreProducto":"WebCam","precioUnitario":75,"totalVenta":0},
-    {"cantidad":3,"categoria":"Electrónica","fecha":"2025-10-10","idProducto":"P022","idVenta":22,"nombreProducto":"Microfono","precioUnitario":0,"totalVenta":150}
+    {"cantidad":3,"categoria":"Electrónica","fecha":"2025-10-10","idProducto":"P022","idVenta":22,"nombreProducto":"Microfono","precioUnitario":0,"totalVenta":150},
+    {"cantidad":10,"categoria":"Muebles","fecha":"2025-12-25","idProducto":"P999","idVenta":3,"nombreProducto":"Producto Falso","precioUnitario":50,"totalVenta":500}
 ]
