@@ -10,6 +10,50 @@ import Text.Printf (printf)
 import Data.Maybe (fromMaybe)
 import qualified Data.ByteString.Lazy as B
 import Data.Aeson.Encode.Pretty (encodePretty)
+import System.IO (hFlush, stdout)
+
+menuPrincipal :: [Venta] -> IO ()
+menuPrincipal ventas = do
+    putStrLn "=== Menú Principal ==="
+    putStrLn "1. Importación de datos"
+    putStrLn "2. Procesamiento de datos"
+    putStrLn "3. Análisis de datos"
+    putStrLn "4. Análisis temporal"
+    putStrLn "5. Estadísticas"
+    putStrLn "6. Salir"
+    putStr "Seleccione una opción (1-6):"
+    hFlush stdout
+    opcion <- getLine
+    case opcion of
+        "1" -> do
+            putStr "Ingrese la ruta del archivo JSON a importar:"
+            hFlush stdout
+            ruta <- getLine
+            resultado <- importarVenta ruta ventas
+            case resultado of
+                Left err -> putStrLn $ "Error al importar ventas: " ++ err
+                Right ventasActualizadas -> do
+                    putStrLn "Ventas importadas y guardadas exitosamente."
+                    menuPrincipal ventasActualizadas
+        "2" -> do
+            putStrLn "Procesamiento de datos no implementado aún."
+            menuPrincipal ventas    
+        "3" -> do
+            putStrLn "Análisis de datos no implementado aún."
+            menuPrincipal ventas
+        "4" -> do
+            putStrLn "Análisis temporal no implementado aún."
+            menuPrincipal ventas
+        "5" -> do
+            putStrLn "Estadísticas no implementado aún."
+            menuPrincipal ventas
+        "6" -> putStrLn "Saliendo del programa. ¡Hasta luego!"
+        _   -> do
+            putStrLn "Opción inválida. Intente nuevamente."
+            menuPrincipal ventas
+
+
+
 
 main :: IO ()
 -- Main para probar las funciones implementadas (Análisis temporal y carga de datos)
@@ -18,75 +62,5 @@ main = do
     case ventasActuales of
         Left err -> putStrLn $ "Error al cargar ventas: " ++ err
         Right ventas -> do
-            putStrLn "Ventas cargadas:"
-            mapM_ print ventas
-            putStrLn "-----------------------------"
-
-            -- Mes con mayor venta
-            case mesMayorVenta ventas of
-                Nothing -> putStrLn "No hay ventas para analizar."
-                Just (mes, total) ->
-                    putStrLn $ "Mes con mayor venta: " ++ mes ++ " con un total de: " ++ show total
-            putStrLn "-----------------------------"
-
-            -- Día más activo
-            case diaMasActivo ventas of
-                Nothing -> putStrLn "No se puede determinar el día más activo."
-                Just (dia, cant) ->
-                    putStrLn $ "Día de la semana más activo: " ++ diasSemanaES dia ++ " con " ++ show cant ++ " transacciones"
-            putStrLn "-----------------------------"
-
-            -- Tasa de crecimiento (ejemplo: T1 2025)
-            let trimestreEjemplo = "2025-T1"
-            case tasaCrecimientoTrimestral ventas trimestreEjemplo of
-                Nothing -> putStrLn $ "No se puede calcular la tasa de crecimiento para " ++ trimestreEjemplo
-                Just tasa -> putStrLn $ "Tasa de crecimiento para " ++ trimestreEjemplo ++ ": " ++ printf "%.2f" tasa ++ "%"
-            putStrLn "-----------------------------"
-
-            -- Resumen trimestral (ordenado por año y trimestre)
-            putStrLn "Resumen trimestral de ventas:"
-            let resumenOrdenado = sortOn fst (resumenTrimestral ventas)
-            mapM_ (\(t, total) -> putStrLn $ t ++ ": " ++ show total) resumenOrdenado
-            putStrLn "-----------------------------"
-
-            -- Total de ventas global
-            let totalVentas = sum $ map totalVenta ventas
-            putStrLn $ "Total de ventas: " ++ show totalVentas
-            putStrLn "-----------------------------"
-
-            -- Totales mensuales y anuales
-            putStrLn "Total de ventas mensuales y anuales:"
-            let totalesMA = totalVentasMensualesAnuales ventas
-            mapM_ (\(mes, total) -> putStrLn $ mes ++ ": " ++ show total) totalesMA
-            putStrLn "-----------------------------"
-
-            -- Promedio ventas por categoría anual
-            let promediosCategorias = promedioVentasPorCategoriaAnual ventas
-            putStrLn "Promedio de ventas por categoría anual:"
-            mapM_ (\(cat, promedio) -> putStrLn $ cat ++ ": " ++ printf "%.2f" promedio) promediosCategorias
-            putStrLn "-----------------------------"
-
-            -- === PROCESAMIENTO DE DATOS ===
-            putStrLn "\n=== PROCESAMIENTO DE DATOS ==="
-            putStrLn "Aplicando técnicas de limpieza de datos...\n"
-
-            -- Procesar datos completo con diferentes técnicas
-            let resultadosProcesamiento = procesarDatosCompleto ventas Media Mediana
-            
-            -- Mostrar resumen del procesamiento
-            putStrLn $ mostrarResumenProcesamiento resultadosProcesamiento
-
-            -- Obtener las ventas finales procesadas
-            let ventasProcesadasFinales = case resultadosProcesamiento of
-                    [] -> ventas
-                    rs -> ventasProcesadas (last rs)
-            
-            putStrLn $ "Ventas originales: " ++ show (length ventas)
-            putStrLn $ "Ventas después del procesamiento: " ++ show (length ventasProcesadasFinales)
-
-            -- Guardar las ventas procesadas en un nuevo archivo
-            let rutaArchivoProcesado = "src/data/Ventas_procesadas.json"
-            B.writeFile rutaArchivoProcesado (encodePretty ventasProcesadasFinales)
-            putStrLn $ "Las ventas procesadas se han guardado en: " ++ rutaArchivoProcesado
-
-            putStrLn "-----------------------------"
+            putStrLn "Ventas cargadas exitosamente."
+            menuPrincipal ventas
