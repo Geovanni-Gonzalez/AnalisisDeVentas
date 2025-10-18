@@ -13,6 +13,12 @@ import Data.Aeson.Encode.Pretty (encodePretty)
 import System.IO (hFlush, stdout)
 import qualified Data.Map as Map
 
+-- | Guarda una lista de ventas en el archivo JSON principal
+guardarVentasEnArchivo :: [Venta] -> IO ()
+guardarVentasEnArchivo ventas = do
+    B.writeFile "src/data/Ventas.json" (encodePretty ventas)
+    putStrLn "Datos guardados en src/data/Ventas.json"
+
 menuAnalisisDeDatos :: [Venta] -> IO ()
 menuAnalisisDeDatos ventas = do
     putStrLn "=== Menú de Análisis de Datos ==="
@@ -72,7 +78,7 @@ menuAnalisisTemporal ventas = do
             case diaMasActivo ventas of
                 Just (dia, count) -> putStrLn $ "Día más activo: " ++ diasSemanaES dia ++ " -> " ++ show count ++ " transacciones"
                 Nothing -> putStrLn "No se pudo determinar el día más activo."
-                putStrLn ""
+            putStrLn ""
             menuAnalisisTemporal ventas
         "2" -> do
             putStr "Ingrese el trimestre (formato AAAA-Tn, ej: 2025-T2): "
@@ -96,6 +102,47 @@ menuAnalisisTemporal ventas = do
             putStrLn "Opción inválida. Intente nuevamente."
             menuAnalisisTemporal ventas
 
+menuBusquedaEspecifica :: [Venta] -> IO ()
+menuBusquedaEspecifica ventas = do
+    putStrLn "=== Menú de Búsqueda Específica ==="
+    putStrLn "1. Buscar ventas por rango de fechas"
+    putStrLn "2. Volver al menú principal"
+    putStr "Seleccione una opción (1-2): "
+    hFlush stdout
+    opcion <- getLine
+    case opcion of
+        "1" -> do
+            putStr "Ingrese la fecha de inicio (YYYY-MM-DD): "
+            hFlush stdout
+            fechaInicio <- getLine
+            putStr "Ingrese la fecha de fin (YYYY-MM-DD): "
+            hFlush stdout
+            fechaFin <- getLine
+            let resultados = buscarVentasPorRangoDeFechas fechaInicio fechaFin ventas
+            if null resultados
+                then putStrLn "No se encontraron ventas en el rango especificado."
+                else do
+                    putStrLn $ "Se encontraron " ++ show (length resultados) ++ " ventas:"
+                    mapM_ mostrarVenta resultados
+            putStrLn ""
+            menuBusquedaEspecifica ventas
+
+
+        "2" -> return ()  -- Volver al menú principal
+        _ -> do
+            putStrLn "Opción inválida. Intente nuevamente."
+            menuBusquedaEspecifica ventas
+
+-- | Función auxiliar para mostrar una venta de forma legible
+mostrarVenta :: Venta -> IO ()
+mostrarVenta venta = do
+    putStrLn $ "  ID: " ++ show (idVenta venta) ++ 
+               " | Fecha: " ++ fecha venta ++ 
+               " | Producto: " ++ nombreProducto venta ++
+               " | Categoría: " ++ categoria venta ++
+               " | Cantidad: " ++ show (cantidad venta) ++
+               " | Precio: $" ++ show (precioUnitario venta) ++
+               " | Total: $" ++ show (totalVenta venta)
 
 menuPrincipal :: [Venta] -> IO ()
 menuPrincipal ventas = do
@@ -122,8 +169,8 @@ menuPrincipal ventas = do
                     putStrLn "Ventas importadas y guardadas exitosamente."
                     menuPrincipal ventasActualizadas
         "2" -> do
-            putStrLn "Procesamiento de datos no implementado aún."
-            menuPrincipal ventas    
+            ventasProcesadas <- menuProcesamiento ventas
+            menuPrincipal ventasProcesadas   
         "3" -> do
             menuAnalisisDeDatos ventas
             menuPrincipal ventas
@@ -131,12 +178,85 @@ menuPrincipal ventas = do
             menuAnalisisTemporal ventas
             menuPrincipal ventas
         "5" -> do
-            putStrLn "Estadísticas no implementado aún."
+            menuBusquedaEspecifica ventas
             menuPrincipal ventas
-        "6" -> putStrLn "Saliendo del programa. ¡Hasta luego!"
+        "7" -> putStrLn "Saliendo del programa. ¡Hasta luego!"
         _   -> do
             putStrLn "Opción inválida. Intente nuevamente."
             menuPrincipal ventas
+
+menuProcesamiento :: [Venta] -> IO [Venta]
+menuProcesamiento ventas = do
+    putStrLn "=== Menú de Procesamiento de Datos ==="
+    putStrLn "1. Completar cantidad faltante"
+    putStrLn "2. Completar precio unitario faltante"
+    putStrLn "3. Eliminar duplicados"
+    putStrLn "4. Volver al menú principal"
+    putStr "Seleccione una opción (1-4): "
+    hFlush stdout
+    opcion <- getLine
+    case opcion of
+        "1" -> do
+            putStrLn "Seleccione la técnica estadística:"
+            putStrLn "1. Media"
+            putStrLn "2. Mediana"
+            putStrLn "3. Moda"
+            putStr "Técnica (1-3): "
+            hFlush stdout
+            tecnicaStr <- getLine
+            let tecnica = case tecnicaStr of
+                    "1" -> Media
+                    "2" -> Mediana
+                    "3" -> Moda
+                    _   -> Media
+            let resultado = completarCantidadFaltante ventas tecnica
+            putStrLn $ "Procesamiento completado:"
+            putStrLn $ "- Técnica utilizada: " ++ tecnicaUtilizada resultado
+            putStrLn $ "- Registros modificados: " ++ show (length $ registrosModificados resultado)
+            putStrLn $ "- IDs modificados: " ++ show (registrosModificados resultado)
+            putStrLn ""
+            -- Guardar los datos procesados
+            guardarVentasEnArchivo (ventasProcesadas resultado)
+            return (ventasProcesadas resultado)
+        
+        "2" -> do
+            putStrLn "Seleccione la técnica estadística:"
+            putStrLn "1. Media"
+            putStrLn "2. Mediana"
+            putStrLn "3. Moda"
+            putStr "Técnica (1-3): "
+            hFlush stdout
+            tecnicaStr <- getLine
+            let tecnica = case tecnicaStr of
+                    "1" -> Media
+                    "2" -> Mediana
+                    "3" -> Moda
+                    _   -> Media
+            let resultado = completarPrecioUnitarioFaltante ventas tecnica
+            putStrLn $ "Procesamiento completado:"
+            putStrLn $ "- Técnica utilizada: " ++ tecnicaUtilizada resultado
+            putStrLn $ "- Registros modificados: " ++ show (length $ registrosModificados resultado)
+            putStrLn $ "- IDs modificados: " ++ show (registrosModificados resultado)
+            putStrLn ""
+            -- Guardar los datos procesados
+            guardarVentasEnArchivo (ventasProcesadas resultado)
+            return (ventasProcesadas resultado)
+            
+        "3" -> do
+            let resultado = eliminarDuplicados ventas
+            putStrLn $ "Procesamiento completado:"
+            putStrLn $ "- Técnica utilizada: " ++ tecnicaUtilizada resultado
+            putStrLn $ "- Registros eliminados: " ++ show (length $ registrosModificados resultado)
+            putStrLn $ "- IDs eliminados: " ++ show (registrosModificados resultado)
+            putStrLn ""
+            -- Guardar los datos procesados
+            guardarVentasEnArchivo (ventasProcesadas resultado)
+            return (ventasProcesadas resultado)
+            
+        "4" -> return ventas
+        _   -> do
+            putStrLn "Opción inválida. Intente nuevamente."
+            menuProcesamiento ventas
 
 
 

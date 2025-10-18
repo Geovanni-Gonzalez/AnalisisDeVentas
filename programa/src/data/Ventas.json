@@ -200,33 +200,23 @@
         "totalVenta": 60
     },
     {
-        "cantidad": 0,
+        "cantidad": 2,
         "categoria": "Electrónica",
         "fecha": "2025-10-01",
         "idProducto": "P021",
         "idVenta": 21,
         "nombreProducto": "WebCam",
         "precioUnitario": 75,
-        "totalVenta": 0
+        "totalVenta": 150
     },
     {
-        "cantidad": 0,
+        "cantidad": 2,
         "categoria": "Electrónica",
         "fecha": "2025-10-10",
         "idProducto": "P022",
         "idVenta": 22,
         "nombreProducto": "Microfono",
-        "precioUnitario": 0,
-        "totalVenta": 150
-    },
-    {
-        "cantidad": 10,
-        "categoria": "Muebles",
-        "fecha": "2025-12-25",
-        "idProducto": "P999",
-        "idVenta": 3,
-        "nombreProducto": "Producto Falso",
         "precioUnitario": 50,
-        "totalVenta": 500
+        "totalVenta": 100
     }
 ]
