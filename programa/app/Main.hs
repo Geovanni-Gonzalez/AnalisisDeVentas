@@ -180,6 +180,8 @@ menuPrincipal ventas = do
         "5" -> do
             menuBusquedaEspecifica ventas
             menuPrincipal ventas
+        "6" -> do
+            putStrLn "Funcionalidad de estadísticas aún no implementada (DARYLL)."
         "7" -> putStrLn "Saliendo del programa. ¡Hasta luego!"
         _   -> do
             putStrLn "Opción inválida. Intente nuevamente."
