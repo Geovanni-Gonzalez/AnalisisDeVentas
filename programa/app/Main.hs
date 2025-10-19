@@ -5,6 +5,7 @@ module Main where
 import Utilidades
 import Venta
 import Procesamiento
+import Estadisticas
 import Data.List (sortOn)
 import Text.Printf (printf)
 import Data.Maybe (fromMaybe)
@@ -12,6 +13,9 @@ import qualified Data.ByteString.Lazy as B
 import Data.Aeson.Encode.Pretty (encodePretty)
 import System.IO (hFlush, stdout)
 import qualified Data.Map as Map
+import Data.Ord (comparing)
+import Data.Time (getCurrentTime, formatTime, defaultTimeLocale)
+
 
 -- | Guarda una lista de ventas en el archivo JSON principal
 guardarVentasEnArchivo :: [Venta] -> IO ()
@@ -202,11 +206,103 @@ menuPrincipal ventas = do
                     menuBusquedaEspecifica ventasFrescas
             menuPrincipal ventas
         "6" -> do
-            putStrLn "Funcionalidad de estadisticas aun no implementada (DARYLL)."
+            -- Recargar datos frescos antes de estadísticas
+            putStrLn "Recargando datos del archivo..."
+            datosActualizados <- cargarVentasDeArchivo "src/data/Ventas.json"
+            case datosActualizados of
+                Left err -> do
+                    putStrLn $ "Error al recargar datos: " ++ err
+                    putStrLn "Usando datos en memoria anterior."
+                    menuEstadisticas ventas
+                Right ventasFrescas -> do
+                    putStrLn "Datos recargados exitosamente."
+                    menuEstadisticas ventasFrescas
+            menuPrincipal ventas
         "7" -> putStrLn "Saliendo del programa. ¡Hasta luego!"
         _   -> do
             putStrLn "Opción inválida. Intente nuevamente."
             menuPrincipal ventas
+
+menuEstadisticas :: [Venta] -> IO ()
+menuEstadisticas ventas = do
+    putStrLn "=== Menú de Estadísticas ==="
+    putStrLn "1. Top 5 de categorías con mayores ventas (monto)"
+    putStrLn "2. Producto más vendido (por cantidad)"
+    putStrLn "3. Regresar al menú principal"
+    putStr "Seleccione una opción (1-3): "
+    hFlush stdout
+    opcion <- getLine
+    case opcion of
+        "1" -> do
+            putStrLn "\n=== Top 5 Categorías con Mayores Ventas ==="
+            let top5 = top5CategoriasMayoresVentas ventas
+            if null top5
+                then putStrLn "No hay ventas registradas."
+                else do
+                    putStrLn "Categoría -> Monto Total"
+                    putStrLn "------------------------"
+                    mapM_ (\(nombreCategoria, monto) -> printf "%-20s -> %d\n" nombreCategoria monto) top5
+                    -- Exportar automáticamente a JSON
+                    exportarTop5CategoriasJSONFijo top5
+            putStrLn ""
+            menuEstadisticas ventas
+        "2" -> do
+            putStrLn "\n=== Producto Más Vendido (Por Cantidad) ==="
+            case productoMasVendido ventas of
+                Nothing -> putStrLn "No hay ventas registradas."
+                Just (producto, cantidad) -> do
+                    putStrLn $ "Producto: " ++ producto
+                    putStrLn $ "Cantidad total vendida: " ++ show cantidad
+                    -- Exportar automáticamente a JSON
+                    exportarProductoMasVendidoJSONFijo producto cantidad
+            putStrLn ""
+            menuEstadisticas ventas
+        "3" -> return ()
+        _ -> do
+            putStrLn "Opción inválida. Intente nuevamente."
+            menuEstadisticas ventas
+
+-- Funciones de exportación JSON simplificadas
+exportarTop5CategoriasJSONFijo :: [(String, Int)] -> IO ()
+exportarTop5CategoriasJSONFijo categorias = do
+    tiempo <- getCurrentTime
+    let fecha = formatTime defaultTimeLocale "%Y-%m-%d %H:%M:%S" tiempo
+    writeFile "src/data/top5categorias.json" $ 
+        "{\n" ++
+        "  \"titulo\": \"Top 5 Categorias con Mayores Ventas\",\n" ++
+        "  \"fecha_generacion\": \"" ++ fecha ++ "\",\n" ++
+        "  \"categorias\": [\n" ++
+        crearListaCategorias categorias ++
+        "  ]\n" ++
+        "}"
+    putStrLn "Top 5 Categorías con Mayores Ventas exportado en la direccion: /programa/data/top5categorias.json"
+  where
+    crearListaCategorias [] = ""
+    crearListaCategorias [(nombreCategoria, monto)] = 
+        "    {\n" ++
+        "      \"categoria\": \"" ++ nombreCategoria ++ "\",\n" ++
+        "      \"monto_total\": " ++ show monto ++ "\n" ++
+        "    }\n"
+    crearListaCategorias ((nombreCategoria, monto):resto) = 
+        "    {\n" ++
+        "      \"categoria\": \"" ++ nombreCategoria ++ "\",\n" ++
+        "      \"monto_total\": " ++ show monto ++ "\n" ++
+        "    },\n" ++
+        crearListaCategorias resto
+
+exportarProductoMasVendidoJSONFijo :: String -> Int -> IO ()
+exportarProductoMasVendidoJSONFijo producto cantidad = do
+    tiempo <- getCurrentTime
+    let fecha = formatTime defaultTimeLocale "%Y-%m-%d %H:%M:%S" tiempo
+    writeFile "src/data/productomasvendido.json" $ 
+        "{\n" ++
+        "  \"titulo\": \"Producto Más Vendido por Cantidad\",\n" ++
+        "  \"fecha_generacion\": \"" ++ fecha ++ "\",\n" ++
+        "  \"producto\": \"" ++ producto ++ "\",\n" ++
+        "  \"cantidad_total\": " ++ show cantidad ++ "\n" ++
+        "}"
+    putStrLn "Producto Más Vendido exportado en la direccion: /programa/data/productomasvendido.json"
+
 
 menuProcesamiento :: [Venta] -> IO [Venta]
 menuProcesamiento ventas = do
