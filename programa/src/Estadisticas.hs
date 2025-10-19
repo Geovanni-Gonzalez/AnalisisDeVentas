@@ -1,0 +1,20 @@
+{-# LANGUAGE OverloadedStrings #-}
+-- |
+-- Módulo      : Estadisticas
+-- Descripción : Funciones para análisis estadístico 
+-- Licencia    : MIT
+-- Autor       : Geovanni Gonzalez, Gerny Diaz
+-- Fecha       : 2025-10-18
+--
+-- Este módulo proporciona funciones para realizar análisis estadísticos
+-- sobre datos de ventas, como cálculos de totales, promedios y agrupaciones.
+--Estadísticas 
+--Se deberán mostrar las siguientes estadísticas (indican el código o letra de esta): 
+-- A. Top 5 de categorías con mayores ventas (monto). 
+-- B. Producto más vendido (por cantidad). 
+-- C. Categoría con menor participación (cantidad). 
+-- D. Resumen general: 
+-- • Cantidad de ventas por categoría. 
+-- • Venta más alta y más baja. 
+-- • Categoría con mayor variedad de productos vendidos. 
+-- Cada reporte de estadísticas debe exportarse en formato csv o json.
