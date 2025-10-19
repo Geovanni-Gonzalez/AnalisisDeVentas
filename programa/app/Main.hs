@@ -125,7 +125,14 @@ menuBusquedaEspecifica ventas = do
                     putStrLn $ "Se encontraron " ++ show (length resultados) ++ " ventas:"
                     mapM_ mostrarVenta resultados
             putStrLn ""
-            menuBusquedaEspecifica ventas
+            -- Recargar datos para próxima búsqueda
+            putStrLn "Recargando datos para proxima búsqueda..."
+            datosActualizados <- cargarVentasDeArchivo "src/data/Ventas.json"
+            case datosActualizados of
+                Left err -> do
+                    putStrLn $ "Error al recargar datos: " ++ err
+                    menuBusquedaEspecifica ventas
+                Right ventasFrescas -> menuBusquedaEspecifica ventasFrescas
 
 
         "2" -> return ()  -- Volver al menú principal
@@ -152,7 +159,7 @@ menuPrincipal ventas = do
     putStrLn "3. Análisis de datos"
     putStrLn "4. Análisis temporal"
     putStrLn "5. Búsqueda específica"
-    putStrLn "6. Estadísticas"
+    putStrLn "6. Estadisticas"
     putStrLn "7. Salir"
     putStr "Seleccione una opción (1-7):"
     hFlush stdout
@@ -169,8 +176,19 @@ menuPrincipal ventas = do
                     putStrLn "Ventas importadas y guardadas exitosamente."
                     menuPrincipal ventasActualizadas
         "2" -> do
-            ventasProcesadas <- menuProcesamiento ventas
-            menuPrincipal ventasProcesadas   
+            -- Recargar datos frescos antes de procesar
+            putStrLn "Recargando datos del archivo..."
+            datosActualizados <- cargarVentasDeArchivo "src/data/Ventas.json"
+            case datosActualizados of
+                Left err -> do
+                    putStrLn $ "Error al recargar datos: " ++ err
+                    putStrLn "Usando datos en memoria anterior."
+                    ventasProcesadas <- menuProcesamiento ventas
+                    menuPrincipal ventasProcesadas
+                Right ventasFrescas -> do
+                    putStrLn "Datos recargados exitosamente."
+                    ventasProcesadas <- menuProcesamiento ventasFrescas
+                    menuPrincipal ventasProcesadas   
         "3" -> do
             menuAnalisisDeDatos ventas
             menuPrincipal ventas
@@ -178,10 +196,20 @@ menuPrincipal ventas = do
             menuAnalisisTemporal ventas
             menuPrincipal ventas
         "5" -> do
-            menuBusquedaEspecifica ventas
+            -- Recargar datos frescos antes de la búsqueda
+            putStrLn "Recargando datos del archivo..."
+            datosActualizados <- cargarVentasDeArchivo "src/data/Ventas.json"
+            case datosActualizados of
+                Left err -> do
+                    putStrLn $ "Error al recargar datos: " ++ err
+                    putStrLn "Usando datos en memoria anterior."
+                    menuBusquedaEspecifica ventas
+                Right ventasFrescas -> do
+                    putStrLn "Datos recargados exitosamente."
+                    menuBusquedaEspecifica ventasFrescas
             menuPrincipal ventas
         "6" -> do
-            putStrLn "Funcionalidad de estadísticas aún no implementada (DARYLL)."
+            putStrLn "Funcionalidad de estadisticas aun no implementada (DARYLL)."
         "7" -> putStrLn "Saliendo del programa. ¡Hasta luego!"
         _   -> do
             putStrLn "Opción inválida. Intente nuevamente."

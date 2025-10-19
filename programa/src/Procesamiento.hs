@@ -77,9 +77,9 @@ calcularMediana valores =
         longitud = length valoresOrdenados
         mitad = longitud `div` 2
     in if longitud `mod` 2 == 0
-       then let v1 = valoresOrdenados !! (mitad - 1)
-                v2 = valoresOrdenados !! mitad
-            in (v1 + v2) `div` 2
+       then let valorIzq = valoresOrdenados !! (mitad - 1)
+                valorDer = valoresOrdenados !! mitad
+            in (valorIzq + valorDer) `div` 2
        else valoresOrdenados !! mitad
 
 -- -----------------------------------------------------------------------------
@@ -102,10 +102,11 @@ calcularModa :: [Int] -> Int
 calcularModa [] = 0
 calcularModa valores =
     let frecuencias = map (\grupo -> (head grupo, length grupo)) $ group $ sort valores
-        (moda, _) = foldr1 (\(v1, f1) (v2, f2) -> 
-                            if f1 > f2 || (f1 == f2 && v1 < v2) 
-                            then (v1, f1) 
-                            else (v2, f2)) frecuencias
+        (moda, _) = foldr1 (\(valorCandidato, frecuenciaCandidato) (valorActualModa, frecuenciaActualModa) -> 
+                                if frecuenciaCandidato > frecuenciaActualModa || 
+                                   (frecuenciaCandidato == frecuenciaActualModa && valorCandidato < valorActualModa) 
+                                then (valorCandidato, frecuenciaCandidato) 
+                                else (valorActualModa, frecuenciaActualModa)) frecuencias
     in moda
 
 -- -----------------------------------------------------------------------------
@@ -135,12 +136,12 @@ completarCantidadFaltante ventas tecnica =
             Moda    -> calcularModa cantidadesValidas
         
         (ventasActualizadas, idsModificados) = 
-            foldr (\venta (acc, ids) -> 
-                if cantidad venta == 0
-                then let ventaActualizada = venta { cantidad = valorRelleno
-                                                  , totalVenta = valorRelleno * precioUnitario venta }
-                     in (ventaActualizada : acc, idVenta venta : ids)
-                else (venta : acc, ids)
+            foldr (\ventaActual (ventasProcesadasAcc, idsModificadosAcc) -> 
+                if cantidad ventaActual == 0
+                then let ventaActualizada = ventaActual { cantidad = valorRelleno
+                                                         , totalVenta = valorRelleno * precioUnitario ventaActual }
+                     in (ventaActualizada : ventasProcesadasAcc, idVenta ventaActual : idsModificadosAcc)
+                else (ventaActual : ventasProcesadasAcc, idsModificadosAcc)
             ) ([], []) ventas
     
     in ResultadoProcesamiento 
@@ -176,12 +177,12 @@ completarPrecioUnitarioFaltante ventas tecnica =
             Moda    -> calcularModa preciosValidos
         
         (ventasActualizadas, idsModificados) = 
-            foldr (\venta (acc, ids) -> 
-                if precioUnitario venta == 0
-                then let ventaActualizada = venta { precioUnitario = valorRelleno
-                                                  , totalVenta = cantidad venta * valorRelleno }
-                     in (ventaActualizada : acc, idVenta venta : ids)
-                else (venta : acc, ids)
+            foldr (\ventaActual (acumuladorVentasProcesadas, acumuladorIdsModificados) -> 
+                if precioUnitario ventaActual == 0
+                then let ventaActualizada = ventaActual { precioUnitario = valorRelleno
+                                                          , totalVenta = cantidad ventaActual * valorRelleno }
+                     in (ventaActualizada : acumuladorVentasProcesadas, idVenta ventaActual : acumuladorIdsModificados)
+                else (ventaActual : acumuladorVentasProcesadas, acumuladorIdsModificados)
             ) ([], []) ventas
     
     in ResultadoProcesamiento 
@@ -212,18 +213,18 @@ eliminarDuplicados ventas =
     let ventasOrdenadas = sortBy (compare `on` claveUnica) ventas
         gruposDuplicados = groupBy ((==) `on` claveUnica) ventasOrdenadas
         
-        (ventasUnicas, idsEliminados) = 
-            foldr (\grupo (acc, ids) -> 
-                case grupo of
-                    [] -> (acc, ids)
-                    (primera:resto) -> 
-                        let idsRestantes = map idVenta resto
-                        in (primera : acc, idsRestantes ++ ids)
+        (ventasSinDuplicados, idsVentasEliminadas) = 
+            foldr (\grupoDuplicados (acumuladorVentasUnicas, acumuladorIdsEliminados) -> 
+                case grupoDuplicados of
+                    [] -> (acumuladorVentasUnicas, acumuladorIdsEliminados)
+                    (primera:ventasDuplicadas) -> 
+                        let idsVentasDuplicadas = map idVenta ventasDuplicadas
+                        in (primera : acumuladorVentasUnicas, idsVentasDuplicadas ++ acumuladorIdsEliminados)
             ) ([], []) gruposDuplicados
     
     in ResultadoProcesamiento 
-        { ventasProcesadas = ventasUnicas
-        , registrosModificados = idsEliminados
+        { ventasProcesadas = ventasSinDuplicados
+        , registrosModificados = idsVentasEliminadas
         , tecnicaUtilizada = "Eliminación de duplicados"
         }
   where
@@ -275,10 +276,10 @@ mostrarResumenProcesamiento :: [ResultadoProcesamiento] -> String
 mostrarResumenProcesamiento resultados =
     let encabezado = "=== RESUMEN DE PROCESAMIENTO DE DATOS ===\n\n"
         resumenPasos = map formatearPaso resultados
-        totalModificados = length $ foldr (\resultado acc -> 
-                                          registrosModificados resultado ++ acc) [] resultados
-        pie = "\nTotal de registros procesados: " ++ show totalModificados ++ "\n"
-    in encabezado ++ concat resumenPasos ++ pie
+        totalModificados = length $ foldr (\resultado acumuladorIds -> 
+                                          registrosModificados resultado ++ acumuladorIds) [] resultados
+        textFinal = "\nTotal de registros procesados: " ++ show totalModificados ++ "\n"
+    in encabezado ++ concat resumenPasos ++ textFinal
   where
     formatearPaso resultado =
         "Técnica: " ++ tecnicaUtilizada resultado ++ "\n" ++
