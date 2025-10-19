@@ -1,18 +1,18 @@
 {
-  "titulo": "Top 5 Categorias con Mayores Ventas",
-  "fecha_generacion": "2025-10-19 05:33:21",
-  "categorias": [
-    {
-      "categoria": "Electr�nica",
-      "monto_total": 7770
-    },
-    {
-      "categoria": "Muebles",
-      "monto_total": 950
-    },
-    {
-      "categoria": "Accesorios",
-      "monto_total": 525
-    }
-  ]
+    "categorias": [
+        {
+            "categoria": "Electrónica",
+            "monto": 7770
+        },
+        {
+            "categoria": "Muebles",
+            "monto": 950
+        },
+        {
+            "categoria": "Accesorios",
+            "monto": 525
+        }
+    ],
+    "fecha_generacion": "2025-10-19 06:06:56",
+    "titulo": "Top 5 Categorías con Mayores Ventas"
 }

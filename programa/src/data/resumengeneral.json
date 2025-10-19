@@ -1,0 +1,39 @@
+{
+    "cantidadPorCategoria": [
+        [
+            "Accesorios",
+            27
+        ],
+        [
+            "Electrónica",
+            27
+        ],
+        [
+            "Muebles",
+            5
+        ]
+    ],
+    "categoriaConMayorVariedad": "Electrónica",
+    "fecha_generacion": "2025-10-19 06:07:46",
+    "titulo": "Resumen General de Ventas",
+    "ventaMasAlta": {
+        "cantidad": 2,
+        "categoria": "Electrónica",
+        "fecha": "2025-10-02",
+        "idProducto": "P001",
+        "idVenta": 1,
+        "nombreProducto": "Laptop",
+        "precioUnitario": 800,
+        "totalVenta": 1600
+    },
+    "ventaMasBaja": {
+        "cantidad": 5,
+        "categoria": "Accesorios",
+        "fecha": "2023-11-11",
+        "idProducto": "P013",
+        "idVenta": 13,
+        "nombreProducto": "Alfombrilla",
+        "precioUnitario": 10,
+        "totalVenta": 50
+    }
+}

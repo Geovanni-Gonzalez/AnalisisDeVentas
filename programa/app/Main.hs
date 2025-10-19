@@ -10,25 +10,167 @@ import Data.List (sortOn)
 import Text.Printf (printf)
 import Data.Maybe (fromMaybe)
 import qualified Data.ByteString.Lazy as B
+import Data.Aeson (object, (.=))
 import Data.Aeson.Encode.Pretty (encodePretty)
 import System.IO (hFlush, stdout)
 import qualified Data.Map as Map
 import Data.Ord (comparing)
 import Data.Time (getCurrentTime, formatTime, defaultTimeLocale)
 
+-- =========================
+-- Funciones auxiliares
+-- =========================
 
--- | Guarda una lista de ventas en el archivo JSON principal
 guardarVentasEnArchivo :: [Venta] -> IO ()
 guardarVentasEnArchivo ventas = do
     B.writeFile "src/data/Ventas.json" (encodePretty ventas)
     putStrLn "Datos guardados en src/data/Ventas.json"
 
+mostrarVenta :: Venta -> IO ()
+mostrarVenta venta = do
+    putStrLn $ "  ID: " ++ show (idVenta venta) ++ 
+               " | Fecha: " ++ fecha venta ++ 
+               " | Producto: " ++ nombreProducto venta ++
+               " | Categoría: " ++ categoria venta ++
+               " | Cantidad: " ++ show (cantidad venta) ++
+               " | Precio: $" ++ show (precioUnitario venta) ++
+               " | Total: $" ++ show (totalVenta venta)
+
+-- =========================
+-- Funciones de exportación
+-- =========================
+
+exportarTop5CategoriasJSONFijo :: [(String, Int)] -> IO ()
+exportarTop5CategoriasJSONFijo top5 = do
+    tiempo <- getCurrentTime
+    let fecha = formatTime defaultTimeLocale "%Y-%m-%d %H:%M:%S" tiempo
+    B.writeFile "src/data/top5categorias.json" $ encodePretty $
+        object [ "titulo" .= ("Top 5 Categorías con Mayores Ventas" :: String)
+               , "fecha_generacion" .= fecha
+               , "categorias" .= map (\(c, m) -> object ["categoria" .= c, "monto" .= m]) top5
+               ]
+    putStrLn "Top 5 categorías exportado a /programa/data/top5categorias.json"
+
+exportarProductoMasVendidoJSONFijo :: String -> Int -> IO ()
+exportarProductoMasVendidoJSONFijo producto cantidad = do
+    tiempo <- getCurrentTime
+    let fecha = formatTime defaultTimeLocale "%Y-%m-%d %H:%M:%S" tiempo
+    B.writeFile "src/data/productomasvendido.json" $ encodePretty $
+        object [ "titulo" .= ("Producto Más Vendido" :: String)
+               , "fecha_generacion" .= fecha
+               , "producto" .= producto
+               , "cantidad" .= cantidad
+               ]
+    putStrLn "Producto más vendido exportado a /programa/data/productomasvendido.json"
+
+exportarCategoriaMenorParticipacionJSONFijo :: String -> Int -> IO ()
+exportarCategoriaMenorParticipacionJSONFijo cat cant = do
+    tiempo <- getCurrentTime
+    let fecha = formatTime defaultTimeLocale "%Y-%m-%d %H:%M:%S" tiempo
+    B.writeFile "src/data/categoriamenor.json" $ encodePretty $
+        object [ "titulo" .= ("Categoría con Menor Participación" :: String)
+               , "fecha_generacion" .= fecha
+               , "categoria" .= cat
+               , "cantidad_total" .= cant
+               ]
+    putStrLn "Categoría con menor participación exportada a /programa/data/categoriamenor.json"
+
+
+exportarResumenGeneralJSONFijo :: ResumenGeneral -> IO ()
+exportarResumenGeneralJSONFijo resumen = do
+    tiempo <- getCurrentTime
+    let fecha = formatTime defaultTimeLocale "%Y-%m-%d %H:%M:%S" tiempo
+    B.writeFile "src/data/resumengeneral.json" $ encodePretty $
+        object [ "titulo" .= ("Resumen General de Ventas" :: String)
+               , "fecha_generacion" .= fecha
+               , "cantidadPorCategoria" .= cantidadPorCategoria resumen
+               , "ventaMasAlta" .= ventaMasAlta resumen
+               , "ventaMasBaja" .= ventaMasBaja resumen
+               , "categoriaConMayorVariedad" .= categoriaConMayorVar resumen
+               ]
+    putStrLn "Resumen general exportado a /programa/data/resumengeneral.json"
+
+-- =========================
+-- Menú de Procesamiento
+-- =========================
+
+menuProcesamiento :: [Venta] -> IO [Venta]
+menuProcesamiento ventas = do
+    putStrLn "=== Menú de Procesamiento de Datos ==="
+    putStrLn "1. Completar cantidad faltante"
+    putStrLn "2. Completar precio unitario faltante"
+    putStrLn "3. Eliminar duplicados"
+    putStrLn "4. Volver al menú principal"
+    putStr "Seleccione una opción (1-4): "
+    hFlush stdout
+    opcion <- getLine
+    case opcion of
+        "1" -> do
+            putStrLn "Seleccione la técnica estadística:"
+            putStrLn "1. Media"
+            putStrLn "2. Mediana"
+            putStrLn "3. Moda"
+            putStr "Técnica (1-3): "
+            hFlush stdout
+            tecnicaStr <- getLine
+            let tecnica = case tecnicaStr of
+                    "1" -> Media
+                    "2" -> Mediana
+                    "3" -> Moda
+                    _   -> Media
+            let resultado = completarCantidadFaltante ventas tecnica
+            putStrLn $ "Procesamiento completado:"
+            putStrLn $ "- Técnica utilizada: " ++ tecnicaUtilizada resultado
+            putStrLn $ "- Registros modificados: " ++ show (length $ registrosModificados resultado)
+            putStrLn $ "- IDs modificados: " ++ show (registrosModificados resultado)
+            putStrLn ""
+            guardarVentasEnArchivo (ventasProcesadas resultado)
+            return (ventasProcesadas resultado)
+        "2" -> do
+            putStrLn "Seleccione la técnica estadística:"
+            putStrLn "1. Media"
+            putStrLn "2. Mediana"
+            putStrLn "3. Moda"
+            putStr "Técnica (1-3): "
+            hFlush stdout
+            tecnicaStr <- getLine
+            let tecnica = case tecnicaStr of
+                    "1" -> Media
+                    "2" -> Mediana
+                    "3" -> Moda
+                    _   -> Media
+            let resultado = completarPrecioUnitarioFaltante ventas tecnica
+            putStrLn $ "Procesamiento completado:"
+            putStrLn $ "- Técnica utilizada: " ++ tecnicaUtilizada resultado
+            putStrLn $ "- Registros modificados: " ++ show (length $ registrosModificados resultado)
+            putStrLn $ "- IDs modificados: " ++ show (registrosModificados resultado)
+            putStrLn ""
+            guardarVentasEnArchivo (ventasProcesadas resultado)
+            return (ventasProcesadas resultado)
+        "3" -> do
+            let resultado = eliminarDuplicados ventas
+            putStrLn $ "Procesamiento completado:"
+            putStrLn $ "- Técnica utilizada: " ++ tecnicaUtilizada resultado
+            putStrLn $ "- Registros eliminados: " ++ show (length $ registrosModificados resultado)
+            putStrLn $ "- IDs eliminados: " ++ show (registrosModificados resultado)
+            putStrLn ""
+            guardarVentasEnArchivo (ventasProcesadas resultado)
+            return (ventasProcesadas resultado)
+        "4" -> return ventas
+        _   -> do
+            putStrLn "Opción inválida. Intente nuevamente."
+            menuProcesamiento ventas
+
+-- =========================
+-- Menús principales
+-- =========================
+
 menuAnalisisDeDatos :: [Venta] -> IO ()
 menuAnalisisDeDatos ventas = do
     putStrLn "=== Menú de Análisis de Datos ==="
-    putStrLn "1. Total de ventas(suma de importes)"
+    putStrLn "1. Total de ventas (suma de importes)"
     putStrLn "2. Total de ventas mensuales y anuales"
-    putStrLn "3. Promedio de ventas por categoria por año"
+    putStrLn "3. Promedio de ventas por categoría por año"
     putStrLn "4. Volver al menú principal"
     putStr "Seleccione una opción (1-4): "
     hFlush stdout
@@ -43,23 +185,17 @@ menuAnalisisDeDatos ventas = do
             let totales = totalVentasMensualesAnuales ventas
             if null totales
                 then putStrLn "No hay ventas registradas."
-                else do
-                    putStrLn "Totales de ventas por mes:"
-                    mapM_ (\(mes, total) -> putStrLn $ "  " ++ mes ++ " -> " ++ show total) totales
-                    putStrLn ""
+                else mapM_ (\(mes, total) -> putStrLn $ "  " ++ mes ++ " -> " ++ show total) totales
+            putStrLn ""
             menuAnalisisDeDatos ventas
-        
         "3" -> do
             let promedios = promedioVentasPorCategoriaAnual ventas
             if null promedios
                 then putStrLn "No hay ventas registradas."
-                else do
-                    putStrLn "Promedio de ventas por categoría:"
-                    mapM_ (\(cat, prom) -> putStrLn $ "  " ++ cat ++ " -> " ++ show prom) promedios
-                    putStrLn ""
+                else mapM_ (\(cat, prom) -> putStrLn $ "  " ++ cat ++ " -> " ++ show prom) promedios
+            putStrLn ""
             menuAnalisisDeDatos ventas
-
-        "4" -> menuPrincipal ventas
+        "4" -> return ()
         _   -> do
             putStrLn "Opción inválida. Intente nuevamente."
             menuAnalisisDeDatos ventas
@@ -97,11 +233,10 @@ menuAnalisisTemporal ventas = do
             let resumen = resumenTrimestral ventas
             if null resumen
                 then putStrLn "No hay ventas registradas."
-                else do
-                    putStrLn "Resumen de ventas por trimestre:"
-                    mapM_ (\(tr, total) -> putStrLn $ "  " ++ tr ++ " -> " ++ show total) resumen
+                else mapM_ (\(tr, total) -> putStrLn $ "  " ++ tr ++ " -> " ++ show total) resumen
+            putStrLn ""
             menuAnalisisTemporal ventas
-        "4" -> return ()  -- Volver al menú principal
+        "4" -> return ()
         _ -> do
             putStrLn "Opción inválida. Intente nuevamente."
             menuAnalisisTemporal ventas
@@ -125,28 +260,70 @@ menuBusquedaEspecifica ventas = do
             let resultados = buscarVentasPorRangoDeFechas fechaInicio fechaFin ventas
             if null resultados
                 then putStrLn "No se encontraron ventas en el rango especificado."
-                else do
-                    putStrLn $ "Se encontraron " ++ show (length resultados) ++ " ventas:"
-                    mapM_ mostrarVenta resultados
+                else mapM_ mostrarVenta resultados
             putStrLn ""
-            return ()  -- Volver al menú principal después de mostrar resultados
-
-
-        "2" -> return ()  -- Volver al menú principal
+            menuBusquedaEspecifica ventas
+        "2" -> return ()
         _ -> do
             putStrLn "Opción inválida. Intente nuevamente."
             menuBusquedaEspecifica ventas
 
--- | Función auxiliar para mostrar una venta de forma legible
-mostrarVenta :: Venta -> IO ()
-mostrarVenta venta = do
-    putStrLn $ "  ID: " ++ show (idVenta venta) ++ 
-               " | Fecha: " ++ fecha venta ++ 
-               " | Producto: " ++ nombreProducto venta ++
-               " | Categoría: " ++ categoria venta ++
-               " | Cantidad: " ++ show (cantidad venta) ++
-               " | Precio: $" ++ show (precioUnitario venta) ++
-               " | Total: $" ++ show (totalVenta venta)
+menuEstadisticas :: [Venta] -> IO ()
+menuEstadisticas ventas = do
+    putStrLn "=== Menú de Estadísticas ==="
+    putStrLn "1. Top 5 de categorías con mayores ventas (monto)"
+    putStrLn "2. Producto más vendido (por cantidad)"
+    putStrLn "3. Categoría con menor participación (cantidad)"
+    putStrLn "4. Resumen general de ventas"
+    putStrLn "5. Regresar al menú principal"
+    putStr "Seleccione una opción (1-5): "
+    hFlush stdout
+    opcion <- getLine
+    case opcion of
+        "1" -> do
+            let top5 = top5CategoriasMayoresVentas ventas
+            if null top5
+                then putStrLn "No hay ventas registradas."
+                else do
+                    mapM_ (\(c, m) -> printf "%-20s -> %d\n" c m) top5
+                    exportarTop5CategoriasJSONFijo top5
+            putStrLn ""
+            menuEstadisticas ventas
+        "2" -> do
+            case productoMasVendido ventas of
+                Nothing -> putStrLn "No hay ventas registradas."
+                Just (producto, cantidad) -> do
+                    putStrLn $ "Producto: " ++ producto
+                    putStrLn $ "Cantidad total vendida: " ++ show cantidad
+                    exportarProductoMasVendidoJSONFijo producto cantidad
+            putStrLn ""
+            menuEstadisticas ventas
+        "3" -> do
+            case categoriaConMenorParticipacion ventas of
+                Nothing -> putStrLn "No hay ventas registradas."
+                Just (cat, cant) -> do
+                    putStrLn $ "Categoría: " ++ cat
+                    putStrLn $ "Cantidad total: " ++ show cant
+                    exportarCategoriaMenorParticipacionJSONFijo cat cant
+            putStrLn ""
+            menuEstadisticas ventas
+        "4" -> do
+            let resumen = resumenGeneral ventas
+            putStrLn $ "Cantidad por categoría: " ++ show (cantidadPorCategoria resumen)
+            putStrLn $ "Venta más alta: " ++ maybe "N/A" (show . totalVenta) (ventaMasAlta resumen)
+            putStrLn $ "Venta más baja: " ++ maybe "N/A" (show . totalVenta) (ventaMasBaja resumen)
+            putStrLn $ "Categoría con mayor variedad: " ++ fromMaybe "N/A" (categoriaConMayorVar resumen)
+            exportarResumenGeneralJSONFijo resumen
+            putStrLn ""
+            menuEstadisticas ventas
+        "5" -> return ()
+        _ -> do
+            putStrLn "Opción inválida. Intente nuevamente."
+            menuEstadisticas ventas
+
+-- =========================
+-- Menú principal
+-- =========================
 
 menuPrincipal :: [Venta] -> IO ()
 menuPrincipal ventas = do
@@ -156,14 +333,14 @@ menuPrincipal ventas = do
     putStrLn "3. Análisis de datos"
     putStrLn "4. Análisis temporal"
     putStrLn "5. Búsqueda específica"
-    putStrLn "6. Estadisticas"
+    putStrLn "6. Estadísticas"
     putStrLn "7. Salir"
-    putStr "Seleccione una opción (1-7):"
+    putStr "Seleccione una opción (1-7): "
     hFlush stdout
     opcion <- getLine
     case opcion of
         "1" -> do
-            putStr "Ingrese la ruta del archivo JSON a importar:"
+            putStr "Ingrese la ruta del archivo JSON a importar: "
             hFlush stdout
             ruta <- getLine
             resultado <- importarVenta ruta ventas
@@ -173,215 +350,27 @@ menuPrincipal ventas = do
                     putStrLn "Ventas importadas y guardadas exitosamente."
                     menuPrincipal ventasActualizadas
         "2" -> do
-            -- Recargar datos frescos antes de procesar
-            putStrLn "Recargando datos del archivo..."
             datosActualizados <- cargarVentasDeArchivo "src/data/Ventas.json"
             case datosActualizados of
                 Left err -> do
                     putStrLn $ "Error al recargar datos: " ++ err
-                    putStrLn "Usando datos en memoria anterior."
-                    ventasProcesadas <- menuProcesamiento ventas
-                    menuPrincipal ventasProcesadas
+                    menuProcesamiento ventas >>= menuPrincipal
                 Right ventasFrescas -> do
-                    putStrLn "Datos recargados exitosamente."
-                    ventasProcesadas <- menuProcesamiento ventasFrescas
-                    menuPrincipal ventasProcesadas   
-        "3" -> do
-            menuAnalisisDeDatos ventas
-            menuPrincipal ventas
-        "4" -> do
-            menuAnalisisTemporal ventas
-            menuPrincipal ventas
-        "5" -> do
-            -- Recargar datos frescos antes de la búsqueda
-            putStrLn "Recargando datos del archivo..."
-            datosActualizados <- cargarVentasDeArchivo "src/data/Ventas.json"
-            case datosActualizados of
-                Left err -> do
-                    putStrLn $ "Error al recargar datos: " ++ err
-                    putStrLn "Usando datos en memoria anterior."
-                    menuBusquedaEspecifica ventas
-                Right ventasFrescas -> do
-                    putStrLn "Datos recargados exitosamente."
-                    menuBusquedaEspecifica ventasFrescas
-            menuPrincipal ventas
-        "6" -> do
-            -- Recargar datos frescos antes de estadísticas
-            putStrLn "Recargando datos del archivo..."
-            datosActualizados <- cargarVentasDeArchivo "src/data/Ventas.json"
-            case datosActualizados of
-                Left err -> do
-                    putStrLn $ "Error al recargar datos: " ++ err
-                    putStrLn "Usando datos en memoria anterior."
-                    menuEstadisticas ventas
-                Right ventasFrescas -> do
-                    putStrLn "Datos recargados exitosamente."
-                    menuEstadisticas ventasFrescas
-            menuPrincipal ventas
+                    menuProcesamiento ventasFrescas >>= menuPrincipal
+        "3" -> menuAnalisisDeDatos ventas >> menuPrincipal ventas
+        "4" -> menuAnalisisTemporal ventas >> menuPrincipal ventas
+        "5" -> menuBusquedaEspecifica ventas >> menuPrincipal ventas
+        "6" -> menuEstadisticas ventas >> menuPrincipal ventas
         "7" -> putStrLn "Saliendo del programa. ¡Hasta luego!"
         _   -> do
             putStrLn "Opción inválida. Intente nuevamente."
             menuPrincipal ventas
 
-menuEstadisticas :: [Venta] -> IO ()
-menuEstadisticas ventas = do
-    putStrLn "=== Menú de Estadísticas ==="
-    putStrLn "1. Top 5 de categorías con mayores ventas (monto)"
-    putStrLn "2. Producto más vendido (por cantidad)"
-    putStrLn "3. Regresar al menú principal"
-    putStr "Seleccione una opción (1-3): "
-    hFlush stdout
-    opcion <- getLine
-    case opcion of
-        "1" -> do
-            putStrLn "\n=== Top 5 Categorías con Mayores Ventas ==="
-            let top5 = top5CategoriasMayoresVentas ventas
-            if null top5
-                then putStrLn "No hay ventas registradas."
-                else do
-                    putStrLn "Categoría -> Monto Total"
-                    putStrLn "------------------------"
-                    mapM_ (\(nombreCategoria, monto) -> printf "%-20s -> %d\n" nombreCategoria monto) top5
-                    -- Exportar automáticamente a JSON
-                    exportarTop5CategoriasJSONFijo top5
-            putStrLn ""
-            menuEstadisticas ventas
-        "2" -> do
-            putStrLn "\n=== Producto Más Vendido (Por Cantidad) ==="
-            case productoMasVendido ventas of
-                Nothing -> putStrLn "No hay ventas registradas."
-                Just (producto, cantidad) -> do
-                    putStrLn $ "Producto: " ++ producto
-                    putStrLn $ "Cantidad total vendida: " ++ show cantidad
-                    -- Exportar automáticamente a JSON
-                    exportarProductoMasVendidoJSONFijo producto cantidad
-            putStrLn ""
-            menuEstadisticas ventas
-        "3" -> return ()
-        _ -> do
-            putStrLn "Opción inválida. Intente nuevamente."
-            menuEstadisticas ventas
-
--- Funciones de exportación JSON simplificadas
-exportarTop5CategoriasJSONFijo :: [(String, Int)] -> IO ()
-exportarTop5CategoriasJSONFijo categorias = do
-    tiempo <- getCurrentTime
-    let fecha = formatTime defaultTimeLocale "%Y-%m-%d %H:%M:%S" tiempo
-    writeFile "src/data/top5categorias.json" $ 
-        "{\n" ++
-        "  \"titulo\": \"Top 5 Categorias con Mayores Ventas\",\n" ++
-        "  \"fecha_generacion\": \"" ++ fecha ++ "\",\n" ++
-        "  \"categorias\": [\n" ++
-        crearListaCategorias categorias ++
-        "  ]\n" ++
-        "}"
-    putStrLn "Top 5 Categorías con Mayores Ventas exportado en la direccion: /programa/data/top5categorias.json"
-  where
-    crearListaCategorias [] = ""
-    crearListaCategorias [(nombreCategoria, monto)] = 
-        "    {\n" ++
-        "      \"categoria\": \"" ++ nombreCategoria ++ "\",\n" ++
-        "      \"monto_total\": " ++ show monto ++ "\n" ++
-        "    }\n"
-    crearListaCategorias ((nombreCategoria, monto):resto) = 
-        "    {\n" ++
-        "      \"categoria\": \"" ++ nombreCategoria ++ "\",\n" ++
-        "      \"monto_total\": " ++ show monto ++ "\n" ++
-        "    },\n" ++
-        crearListaCategorias resto
-
-exportarProductoMasVendidoJSONFijo :: String -> Int -> IO ()
-exportarProductoMasVendidoJSONFijo producto cantidad = do
-    tiempo <- getCurrentTime
-    let fecha = formatTime defaultTimeLocale "%Y-%m-%d %H:%M:%S" tiempo
-    writeFile "src/data/productomasvendido.json" $ 
-        "{\n" ++
-        "  \"titulo\": \"Producto Más Vendido por Cantidad\",\n" ++
-        "  \"fecha_generacion\": \"" ++ fecha ++ "\",\n" ++
-        "  \"producto\": \"" ++ producto ++ "\",\n" ++
-        "  \"cantidad_total\": " ++ show cantidad ++ "\n" ++
-        "}"
-    putStrLn "Producto Más Vendido exportado en la direccion: /programa/data/productomasvendido.json"
-
-
-menuProcesamiento :: [Venta] -> IO [Venta]
-menuProcesamiento ventas = do
-    putStrLn "=== Menú de Procesamiento de Datos ==="
-    putStrLn "1. Completar cantidad faltante"
-    putStrLn "2. Completar precio unitario faltante"
-    putStrLn "3. Eliminar duplicados"
-    putStrLn "4. Volver al menú principal"
-    putStr "Seleccione una opción (1-4): "
-    hFlush stdout
-    opcion <- getLine
-    case opcion of
-        "1" -> do
-            putStrLn "Seleccione la técnica estadística:"
-            putStrLn "1. Media"
-            putStrLn "2. Mediana"
-            putStrLn "3. Moda"
-            putStr "Técnica (1-3): "
-            hFlush stdout
-            tecnicaStr <- getLine
-            let tecnica = case tecnicaStr of
-                    "1" -> Media
-                    "2" -> Mediana
-                    "3" -> Moda
-                    _   -> Media
-            let resultado = completarCantidadFaltante ventas tecnica
-            putStrLn $ "Procesamiento completado:"
-            putStrLn $ "- Técnica utilizada: " ++ tecnicaUtilizada resultado
-            putStrLn $ "- Registros modificados: " ++ show (length $ registrosModificados resultado)
-            putStrLn $ "- IDs modificados: " ++ show (registrosModificados resultado)
-            putStrLn ""
-            -- Guardar los datos procesados
-            guardarVentasEnArchivo (ventasProcesadas resultado)
-            return (ventasProcesadas resultado)
-        
-        "2" -> do
-            putStrLn "Seleccione la técnica estadística:"
-            putStrLn "1. Media"
-            putStrLn "2. Mediana"
-            putStrLn "3. Moda"
-            putStr "Técnica (1-3): "
-            hFlush stdout
-            tecnicaStr <- getLine
-            let tecnica = case tecnicaStr of
-                    "1" -> Media
-                    "2" -> Mediana
-                    "3" -> Moda
-                    _   -> Media
-            let resultado = completarPrecioUnitarioFaltante ventas tecnica
-            putStrLn $ "Procesamiento completado:"
-            putStrLn $ "- Técnica utilizada: " ++ tecnicaUtilizada resultado
-            putStrLn $ "- Registros modificados: " ++ show (length $ registrosModificados resultado)
-            putStrLn $ "- IDs modificados: " ++ show (registrosModificados resultado)
-            putStrLn ""
-            -- Guardar los datos procesados
-            guardarVentasEnArchivo (ventasProcesadas resultado)
-            return (ventasProcesadas resultado)
-            
-        "3" -> do
-            let resultado = eliminarDuplicados ventas
-            putStrLn $ "Procesamiento completado:"
-            putStrLn $ "- Técnica utilizada: " ++ tecnicaUtilizada resultado
-            putStrLn $ "- Registros eliminados: " ++ show (length $ registrosModificados resultado)
-            putStrLn $ "- IDs eliminados: " ++ show (registrosModificados resultado)
-            putStrLn ""
-            -- Guardar los datos procesados
-            guardarVentasEnArchivo (ventasProcesadas resultado)
-            return (ventasProcesadas resultado)
-            
-        "4" -> return ventas
-        _   -> do
-            putStrLn "Opción inválida. Intente nuevamente."
-            menuProcesamiento ventas
-
-
-
+-- =========================
+-- Main
+-- =========================
 
 main :: IO ()
--- Main para probar las funciones implementadas (Análisis temporal y carga de datos)
 main = do
     ventasActuales <- cargarVentasDeArchivo "src/data/Ventas.json"
     case ventasActuales of
