@@ -125,14 +125,7 @@ menuBusquedaEspecifica ventas = do
                     putStrLn $ "Se encontraron " ++ show (length resultados) ++ " ventas:"
                     mapM_ mostrarVenta resultados
             putStrLn ""
-            -- Recargar datos para próxima búsqueda
-            putStrLn "Recargando datos para proxima búsqueda..."
-            datosActualizados <- cargarVentasDeArchivo "src/data/Ventas.json"
-            case datosActualizados of
-                Left err -> do
-                    putStrLn $ "Error al recargar datos: " ++ err
-                    menuBusquedaEspecifica ventas
-                Right ventasFrescas -> menuBusquedaEspecifica ventasFrescas
+            return ()  -- Volver al menú principal después de mostrar resultados
 
 
         "2" -> return ()  -- Volver al menú principal
