@@ -25,6 +25,7 @@ source-repository head
 library
   exposed-modules:
       Estadisticas
+      Interfaz
       Procesamiento
       Utilidades
       Venta
@@ -38,10 +39,12 @@ library
   build-depends:
       aeson
     , aeson-pretty
+    , ansi-terminal
     , base >=4.7 && <5
     , bytestring
     , containers
     , directory
+    , hspec
     , text
     , time
   default-language: Haskell2010
@@ -58,10 +61,12 @@ executable programa-exe
   build-depends:
       aeson
     , aeson-pretty
+    , ansi-terminal
     , base >=4.7 && <5
     , bytestring
     , containers
     , directory
+    , hspec
     , programa
     , text
     , time
@@ -80,10 +85,12 @@ test-suite programa-test
   build-depends:
       aeson
     , aeson-pretty
+    , ansi-terminal
     , base >=4.7 && <5
     , bytestring
     , containers
     , directory
+    , hspec
     , programa
     , text
     , time

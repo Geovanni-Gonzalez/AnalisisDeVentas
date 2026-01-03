@@ -18,7 +18,8 @@ import GHC.Generics (Generic)
 import Data.Aeson (ToJSON, FromJSON)
 import Data.Time (Day, parseTimeM, defaultTimeLocale, formatTime)
 import Data.Maybe (fromMaybe)
-import Data.List (foldl', sortOn)
+import Data.List (foldl', sortBy)
+import Data.Ord (comparing)
 import qualified Data.Map as Map
 -- -----------------------------------------------------------------------------
 -- | Representa una venta realizada en un sistema de gestión.
@@ -338,7 +339,9 @@ promedioVentasPorCategoriaAnual ventas =
 -- [Venta {idVenta = 1, fecha = "2025-10-01", ...}]
 buscarVentasPorRangoDeFechas :: String -> String -> [Venta] -> [Venta]
 buscarVentasPorRangoDeFechas fechaInicio fechaFin ventas =
-  sortOn fecha $ filter (\venta -> let f = fecha venta in f >= fechaInicio && f <= fechaFin) ventas
+  ordenarVentasPorFecha $ filter (\venta -> let f = fecha venta in f >= fechaInicio && f <= fechaFin) ventas
 
 
--- ORDENAR POR FECHAS EN LOS LOGS
+-- | Ordena una lista de ventas cronológicamente por fecha.
+ordenarVentasPorFecha :: [Venta] -> [Venta]
+ordenarVentasPorFecha = sortBy (comparing fecha)

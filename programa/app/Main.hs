@@ -2,6 +2,7 @@
 
 module Main where
 
+import Interfaz
 import Utilidades
 import Venta
 import Procesamiento
@@ -12,7 +13,7 @@ import Data.Maybe (fromMaybe)
 import qualified Data.ByteString.Lazy as B
 import Data.Aeson (object, (.=))
 import Data.Aeson.Encode.Pretty (encodePretty)
-import System.IO (hFlush, stdout)
+import System.IO (hFlush, stdout, stdin)
 import qualified Data.Map as Map
 import Data.Ord (comparing)
 
@@ -23,21 +24,23 @@ import Data.Ord (comparing)
 
 menuProcesamiento :: [Venta] -> IO [Venta]
 menuProcesamiento ventas = do
-    putStrLn "=== Menú de Procesamiento de Datos ==="
-    putStrLn "1. Completar cantidad faltante"
-    putStrLn "2. Completar precio unitario faltante"
-    putStrLn "3. Eliminar duplicados"
-    putStrLn "4. Volver al menú principal"
-    putStr "Seleccione una opción (1-4): "
+    limpiarPantalla
+    printHeader "PROCESAMIENTO DE DATOS"
+    printMenuOption "1" "Completar cantidad faltante"
+    printMenuOption "2" "Completar precio unitario faltante"
+    printMenuOption "3" "Eliminar duplicados"
+    printMenuOption "4" "Volver al menú principal"
+    putStr "\nSeleccione una opción: "
     hFlush stdout
     opcion <- getLine
     case opcion of
         "1" -> do
-            putStrLn "Seleccione la técnica estadística:"
-            putStrLn "1. Media"
-            putStrLn "2. Mediana"
-            putStrLn "3. Moda"
-            putStr "Técnica (1-3): "
+            limpiarPantalla
+            printHeader "COMPLETAR CANTIDAD"
+            printMenuOption "1" "Técnica: Media"
+            printMenuOption "2" "Técnica: Mediana"
+            printMenuOption "3" "Técnica: Moda"
+            putStr "\nTécnica (1-3): "
             hFlush stdout
             tecnicaStr <- getLine
             let tecnica = case tecnicaStr of
@@ -46,19 +49,20 @@ menuProcesamiento ventas = do
                     "3" -> Moda
                     _   -> Media
             let resultado = completarCantidadFaltante ventas tecnica
-            putStrLn $ "Procesamiento completado:"
-            putStrLn $ "- Técnica utilizada: " ++ tecnicaUtilizada resultado
-            putStrLn $ "- Registros modificados: " ++ show (length $ registrosModificados resultado)
-            putStrLn $ "- IDs modificados: " ++ show (registrosModificados resultado)
             putStrLn ""
+            printSuccess "Procesamiento completado:"
+            putStrLn $ "  • Técnica: " ++ tecnicaUtilizada resultado
+            putStrLn $ "  • Modificaciones: " ++ show (length $ registrosModificados resultado)
             guardarVentasEnArchivo (ventasProcesadas resultado)
+            waitForKey
             return (ventasProcesadas resultado)
         "2" -> do
-            putStrLn "Seleccione la técnica estadística:"
-            putStrLn "1. Media"
-            putStrLn "2. Mediana"
-            putStrLn "3. Moda"
-            putStr "Técnica (1-3): "
+            limpiarPantalla
+            printHeader "COMPLETAR PRECIO"
+            printMenuOption "1" "Técnica: Media"
+            printMenuOption "2" "Técnica: Mediana"
+            printMenuOption "3" "Técnica: Moda"
+            putStr "\nTécnica (1-3): "
             hFlush stdout
             tecnicaStr <- getLine
             let tecnica = case tecnicaStr of
@@ -67,25 +71,28 @@ menuProcesamiento ventas = do
                     "3" -> Moda
                     _   -> Media
             let resultado = completarPrecioUnitarioFaltante ventas tecnica
-            putStrLn $ "Procesamiento completado:"
-            putStrLn $ "- Técnica utilizada: " ++ tecnicaUtilizada resultado
-            putStrLn $ "- Registros modificados: " ++ show (length $ registrosModificados resultado)
-            putStrLn $ "- IDs modificados: " ++ show (registrosModificados resultado)
             putStrLn ""
+            printSuccess "Procesamiento completado:"
+            putStrLn $ "  • Técnica: " ++ tecnicaUtilizada resultado
+            putStrLn $ "  • Modificaciones: " ++ show (length $ registrosModificados resultado)
             guardarVentasEnArchivo (ventasProcesadas resultado)
+            waitForKey
             return (ventasProcesadas resultado)
         "3" -> do
+            limpiarPantalla
+            printHeader "ELIMINAR DUPLICADOS"
             let resultado = eliminarDuplicados ventas
-            putStrLn $ "Procesamiento completado:"
-            putStrLn $ "- Técnica utilizada: " ++ tecnicaUtilizada resultado
-            putStrLn $ "- Registros eliminados: " ++ show (length $ registrosModificados resultado)
-            putStrLn $ "- IDs eliminados: " ++ show (registrosModificados resultado)
             putStrLn ""
+            printSuccess "Procesamiento completado:"
+            putStrLn $ "  • Técnica: " ++ tecnicaUtilizada resultado
+            putStrLn $ "  • Eliminados: " ++ show (length $ registrosModificados resultado)
             guardarVentasEnArchivo (ventasProcesadas resultado)
+            waitForKey
             return (ventasProcesadas resultado)
         "4" -> return ventas
         _   -> do
-            putStrLn "Opción inválida. Intente nuevamente."
+            printError "Opción inválida."
+            waitForKey
             menuProcesamiento ventas
 
 -- =========================
@@ -94,86 +101,100 @@ menuProcesamiento ventas = do
 
 menuAnalisisDeDatos :: [Venta] -> IO ()
 menuAnalisisDeDatos ventas = do
-    putStrLn "=== Menú de Análisis de Datos ==="
-    putStrLn "1. Total de ventas (suma de importes)"
-    putStrLn "2. Total de ventas mensuales y anuales"
-    putStrLn "3. Promedio de ventas por categoría por año"
-    putStrLn "4. Volver al menú principal"
-    putStr "Seleccione una opción (1-4): "
+    limpiarPantalla
+    printHeader "ANÁLISIS DE DATOS"
+    printMenuOption "1" "Total de ventas (suma de importes)"
+    printMenuOption "2" "Total de ventas mensuales y anuales"
+    printMenuOption "3" "Promedio de ventas por categoría por año"
+    printMenuOption "4" "Volver al menú principal"
+    putStr "\nSeleccione una opción: "
     hFlush stdout
     opcion <- getLine
     case opcion of
         "1" -> do
             let total = totalDeVentas ventas
-            putStrLn $ "Total de ventas: " ++ show total
             putStrLn ""
+            printSuccess $ "Total de ventas: $" ++ show total
+            waitForKey
             menuAnalisisDeDatos ventas
         "2" -> do
+            limpiarPantalla
+            printHeader "VENTAS MENSUALES Y ANUALES"
             let totales = totalVentasMensualesAnuales ventas
             if null totales
-                then putStrLn "No hay ventas registradas."
-                else mapM_ (\(mes, total) -> putStrLn $ "  " ++ mes ++ " -> " ++ show total) totales
-            putStrLn ""
+                then printError "No hay ventas registradas."
+                else mapM_ (\(mes, total) -> putStrLn $ "  • " ++ mes ++ " -> $" ++ show total) totales
+            waitForKey
             menuAnalisisDeDatos ventas
         "3" -> do
+            limpiarPantalla
+            printHeader "PROMEDIO POR CATEGORÍA"
             let promedios = promedioVentasPorCategoriaAnual ventas
             if null promedios
-                then putStrLn "No hay ventas registradas."
-                else mapM_ (\(cat, prom) -> putStrLn $ "  " ++ cat ++ " -> " ++ show prom) promedios
-            putStrLn ""
+                then printError "No hay ventas registradas."
+                else mapM_ (\(cat, prom) -> putStrLn $ "  • " ++ cat ++ " -> $" ++ show prom) promedios
+            waitForKey
             menuAnalisisDeDatos ventas
         "4" -> return ()
         _   -> do
-            putStrLn "Opción inválida. Intente nuevamente."
+            printError "Opción inválida."
+            waitForKey
             menuAnalisisDeDatos ventas
 
 menuAnalisisTemporal :: [Venta] -> IO ()
 menuAnalisisTemporal ventas = do
-    putStrLn "=== Menú de Análisis Temporal ==="
-    putStrLn "1. Mes con mayor venta y día de la semana más activo"
-    putStrLn "2. Tasa de crecimiento/decrecimiento en un trimestre específico"
-    putStrLn "3. Resumen de ventas por trimestre"
-    putStrLn "4. Volver al menú principal"
-    putStr "Seleccione una opción (1-4): "
+    limpiarPantalla
+    printHeader "ANÁLISIS TEMPORAL"
+    printMenuOption "1" "Mes con mayor venta y día más activo"
+    printMenuOption "2" "Tasa de crecimiento trimestral"
+    printMenuOption "3" "Resumen de ventas por trimestre"
+    printMenuOption "4" "Volver al menú principal"
+    putStr "\nSeleccione una opción: "
     hFlush stdout
     opcion <- getLine
     case opcion of
         "1" -> do
+            limpiarPantalla
+            printHeader "HITOS TEMPORALES"
             case mesMayorVenta ventas of
-                Just (mes, total) -> putStrLn $ "Mes con mayor venta: " ++ mes ++ " -> " ++ show total
-                Nothing -> putStrLn "No hay ventas registradas."
+                Just (mes, total) -> putStrLn $ "  • Mes récord: " ++ mes ++ " ($" ++ show total ++ ")"
+                Nothing -> printError "No hay ventas registradas."
             case diaMasActivo ventas of
-                Just (dia, count) -> putStrLn $ "Día más activo: " ++ diasSemanaES dia ++ " -> " ++ show count ++ " transacciones"
-                Nothing -> putStrLn "No se pudo determinar el día más activo."
-            putStrLn ""
+                Just (dia, count) -> putStrLn $ "  • Día más activo: " ++ diasSemanaES dia ++ " (" ++ show count ++ " txs)"
+                Nothing -> putStrLn "  • Día más activo: N/A"
+            waitForKey
             menuAnalisisTemporal ventas
         "2" -> do
-            putStr "Ingrese el trimestre (formato AAAA-Tn, ej: 2025-T2): "
+            putStr "\nIngrese el trimestre (ej: 2025-T2): "
             hFlush stdout
             trimestre <- getLine
             case tasaCrecimientoTrimestral ventas trimestre of
-                Just tasa -> putStrLn $ "Tasa de crecimiento: " ++ show tasa ++ "%"
-                Nothing -> putStrLn "No se puede calcular la tasa (trimestre anterior sin ventas o formato inválido)."
-            putStrLn ""
+                Just tasa -> printSuccess $ "Tasa de crecimiento: " ++ show tasa ++ "%"
+                Nothing -> printError "No se puede calcular (sin datos previos o formato inválido)."
+            waitForKey
             menuAnalisisTemporal ventas
         "3" -> do
+            limpiarPantalla
+            printHeader "RESUMEN TRIMESTRAL"
             let resumen = resumenTrimestral ventas
             if null resumen
-                then putStrLn "No hay ventas registradas."
-                else mapM_ (\(tr, total) -> putStrLn $ "  " ++ tr ++ " -> " ++ show total) resumen
-            putStrLn ""
+                then printError "No hay ventas registradas."
+                else mapM_ (\(tr, total) -> putStrLn $ "  • " ++ tr ++ " -> $" ++ show total) resumen
+            waitForKey
             menuAnalisisTemporal ventas
         "4" -> return ()
         _ -> do
-            putStrLn "Opción inválida. Intente nuevamente."
+            printError "Opción inválida."
+            waitForKey
             menuAnalisisTemporal ventas
 
 menuBusquedaEspecifica :: [Venta] -> IO ()
 menuBusquedaEspecifica ventas = do
-    putStrLn "=== Menú de Búsqueda Específica ==="
-    putStrLn "1. Buscar ventas por rango de fechas"
-    putStrLn "2. Volver al menú principal"
-    putStr "Seleccione una opción (1-2): "
+    limpiarPantalla
+    printHeader "BÚSQUEDA ESPECÍFICA"
+    printMenuOption "1" "Buscar ventas por rango de fechas"
+    printMenuOption "2" "Volver al menú principal"
+    putStr "\nSeleccione una opción: "
     hFlush stdout
     opcion <- getLine
     case opcion of
@@ -184,68 +205,86 @@ menuBusquedaEspecifica ventas = do
             putStr "Ingrese la fecha de fin (YYYY-MM-DD): "
             hFlush stdout
             fechaFin <- getLine
+            
+            limpiarPantalla
+            printHeader $ "RESULTADOS: " ++ fechaInicio ++ " a " ++ fechaFin
             let resultados = buscarVentasPorRangoDeFechas fechaInicio fechaFin ventas
             if null resultados
-                then putStrLn "No se encontraron ventas en el rango especificado."
+                then printError "No se encontraron ventas en ese rango."
                 else mapM_ mostrarVenta resultados
-            putStrLn ""
+            waitForKey
             menuBusquedaEspecifica ventas
         "2" -> return ()
         _ -> do
-            putStrLn "Opción inválida. Intente nuevamente."
+            printError "Opción inválida."
+            waitForKey
             menuBusquedaEspecifica ventas
 
 menuEstadisticas :: [Venta] -> IO ()
 menuEstadisticas ventas = do
-    putStrLn "=== Menú de Estadísticas ==="
-    putStrLn "1. Top 5 de categorías con mayores ventas (monto)"
-    putStrLn "2. Producto más vendido (por cantidad)"
-    putStrLn "3. Categoría con menor participación (cantidad)"
-    putStrLn "4. Resumen general de ventas"
-    putStrLn "5. Regresar al menú principal"
-    putStr "Seleccione una opción (1-5): "
+    limpiarPantalla
+    printHeader "ESTADÍSTICAS AVANZADAS"
+    printMenuOption "1" "Top 5 Categorías (Monto)"
+    printMenuOption "2" "Producto más vendido (Cantidad)"
+    printMenuOption "3" "Categoría con menor participación"
+    printMenuOption "4" "Resumen General (KPIs)"
+    printMenuOption "5" "Regresar al menú principal"
+    putStr "\nSeleccione una opción: "
     hFlush stdout
     opcion <- getLine
     case opcion of
         "1" -> do
             let top5 = top5CategoriasMayoresVentas ventas
+            limpiarPantalla
+            printHeader "TOP 5 CATEGORÍAS"
             if null top5
-                then putStrLn "No hay ventas registradas."
+                then printError "No hay ventas registradas."
                 else do
-                    mapM_ (\(c, m) -> printf "%-20s -> %d\n" c m) top5
+                    mapM_ (\(c, m) -> printf "  • %-20s -> $%d\n" c m) top5
                     exportarTop5CategoriasJSONFijo top5
-            putStrLn ""
+                    printSuccess "Reporte exportado JSON."
+            waitForKey
             menuEstadisticas ventas
         "2" -> do
             case productoMasVendido ventas of
-                Nothing -> putStrLn "No hay ventas registradas."
+                Nothing -> printError "No hay ventas registradas."
                 Just (producto, cantidad) -> do
-                    putStrLn $ "Producto: " ++ producto
-                    putStrLn $ "Cantidad total vendida: " ++ show cantidad
+                    limpiarPantalla
+                    printHeader "PRODUCTO ESTRELLA"
+                    putStrLn $ "  • Producto: " ++ producto
+                    putStrLn $ "  • Unidades: " ++ show cantidad
                     exportarProductoMasVendidoJSONFijo producto cantidad
-            putStrLn ""
+                    printSuccess "Reporte exportado JSON."
+            waitForKey
             menuEstadisticas ventas
         "3" -> do
             case categoriaConMenorParticipacion ventas of
-                Nothing -> putStrLn "No hay ventas registradas."
+                Nothing -> printError "No hay ventas registradas."
                 Just (cat, cant) -> do
-                    putStrLn $ "Categoría: " ++ cat
-                    putStrLn $ "Cantidad total: " ++ show cant
+                    limpiarPantalla
+                    printHeader "MENOR PARTICIPACIÓN"
+                    putStrLn $ "  • Categoría: " ++ cat
+                    putStrLn $ "  • Unidades: " ++ show cant
                     exportarCategoriaMenorParticipacionJSONFijo cat cant
-            putStrLn ""
+                    printSuccess "Reporte exportado JSON."
+            waitForKey
             menuEstadisticas ventas
         "4" -> do
             let resumen = resumenGeneral ventas
-            putStrLn $ "Cantidad por categoría: " ++ show (cantidadPorCategoria resumen)
-            putStrLn $ "Venta más alta: " ++ maybe "N/A" (show . totalVenta) (ventaMasAlta resumen)
-            putStrLn $ "Venta más baja: " ++ maybe "N/A" (show . totalVenta) (ventaMasBaja resumen)
-            putStrLn $ "Categoría con mayor variedad: " ++ fromMaybe "N/A" (categoriaConMayorVar resumen)
+            limpiarPantalla
+            printHeader "RESUMEN GENERAL (KPIs)"
+            putStrLn $ "  • Categorías: " ++ show (cantidadPorCategoria resumen)
+            printMenuOption "HIGH" ("Venta Más Alta: " ++ maybe "N/A" (show . totalVenta) (ventaMasAlta resumen))
+            printMenuOption "LOW" ("Venta Más Baja: " ++ maybe "N/A" (show . totalVenta) (ventaMasBaja resumen))
+            putStrLn $ "  • Mayor Variedad: " ++ fromMaybe "N/A" (categoriaConMayorVar resumen)
             exportarResumenGeneralJSONFijo resumen
-            putStrLn ""
+            printSuccess "Reporte exportado JSON."
+            waitForKey
             menuEstadisticas ventas
         "5" -> return ()
         _ -> do
-            putStrLn "Opción inválida. Intente nuevamente."
+            printError "Opción inválida."
+            waitForKey
             menuEstadisticas ventas
 
 -- =========================
@@ -254,33 +293,39 @@ menuEstadisticas ventas = do
 
 menuPrincipal :: [Venta] -> IO ()
 menuPrincipal ventas = do
-    putStrLn "=== Menú Principal ==="
-    putStrLn "1. Importación de datos"
-    putStrLn "2. Procesamiento de datos"
-    putStrLn "3. Análisis de datos"
-    putStrLn "4. Análisis temporal"
-    putStrLn "5. Búsqueda específica"
-    putStrLn "6. Estadísticas"
-    putStrLn "7. Salir"
-    putStr "Seleccione una opción (1-7): "
+    limpiarPantalla
+    printHeader "SISTEMA DE ANALISIS DE VENTAS"
+    printMenuOption "1" "Importacion de datos"
+    printMenuOption "2" "Procesamiento de datos (Limpieza)"
+    printMenuOption "3" "Analisis de datos (Totales/Promedios)"
+    printMenuOption "4" "Analisis temporal (Tendencias)"
+    printMenuOption "5" "Busqueda especifica"
+    printMenuOption "6" "Estadisticas Avanzadas"
+    printMenuOption "7" "Salir"
+    putStr "\nSeleccione una opción: "
     hFlush stdout
     opcion <- getLine
     case opcion of
         "1" -> do
-            putStr "Ingrese la ruta del archivo JSON a importar: "
+            putStr "Ingrese ruta (JSON): "
             hFlush stdout
             ruta <- getLine
             resultado <- importarVenta ruta ventas
             case resultado of
-                Left err -> putStrLn $ "Error al importar ventas: " ++ err
+                Left err -> do 
+                    printError $ "Error: " ++ err
+                    waitForKey
+                    menuPrincipal ventas
                 Right ventasActualizadas -> do
-                    putStrLn "Ventas importadas y guardadas exitosamente."
+                    printSuccess "Ventas importadas exitosamente."
+                    waitForKey
                     menuPrincipal ventasActualizadas
         "2" -> do
             datosActualizados <- cargarVentasDeArchivo "src/data/Ventas.json"
             case datosActualizados of
                 Left err -> do
-                    putStrLn $ "Error al recargar datos: " ++ err
+                    printError $ "Error al recargar: " ++ err
+                    waitForKey
                     menuProcesamiento ventas >>= menuPrincipal
                 Right ventasFrescas -> do
                     menuProcesamiento ventasFrescas >>= menuPrincipal
@@ -288,9 +333,12 @@ menuPrincipal ventas = do
         "4" -> menuAnalisisTemporal ventas >> menuPrincipal ventas
         "5" -> menuBusquedaEspecifica ventas >> menuPrincipal ventas
         "6" -> menuEstadisticas ventas >> menuPrincipal ventas
-        "7" -> putStrLn "Saliendo del programa. ¡Hasta luego!"
+        "7" -> do
+            printSuccess "¡Hasta luego!"
+            return ()
         _   -> do
-            putStrLn "Opción inválida. Intente nuevamente."
+            printError "Opción inválida."
+            waitForKey
             menuPrincipal ventas
 
 -- =========================
@@ -299,9 +347,12 @@ menuPrincipal ventas = do
 
 main :: IO ()
 main = do
+    limpiarPantalla
+    printHeader "INICIANDO SISTEMA..."
     ventasActuales <- cargarVentasDeArchivo "src/data/Ventas.json"
     case ventasActuales of
-        Left err -> putStrLn $ "Error al cargar ventas: " ++ err
+        Left err -> printError $ "Error fatal al cargar ventas: " ++ err
         Right ventas -> do
-            putStrLn "Ventas cargadas exitosamente."
+            printSuccess "Base de datos cargada correctamente."
+            waitForKey
             menuPrincipal ventas

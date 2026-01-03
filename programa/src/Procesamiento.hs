@@ -110,86 +110,48 @@ calcularModa valores =
     in moda
 
 -- -----------------------------------------------------------------------------
--- | Completa los datos faltantes de cantidad en las ventas.
---  Considera cantidad = 0 como dato faltante.
---  Utiliza funciones de orden superior (map, filter).
--- 
--- ==== Parámetros
---
--- * 'ventas'   : Lista de ventas a procesar.
--- * 'tecnica'  : Técnica estadística a utilizar.
---
--- ==== Retorno
---
--- * 'ResultadoProcesamiento' con ventas procesadas e IDs modificados.
---
--- ==== Ejemplo
---
--- >>> completarCantidadFaltante [Venta 1 "2025-01-01" "P1" "Prod" "Cat" 0 100 100] Media
--- ResultadoProcesamiento {...}
-completarCantidadFaltante :: [Venta] -> TecnicaEstadistica -> ResultadoProcesamiento
-completarCantidadFaltante ventas tecnica =
-    let cantidadesValidas = map cantidad $ filter (\v -> cantidad v > 0) ventas
+-- | Función auxiliar genérica para completar datos faltantes.
+completarDatoGenerico 
+    :: (Venta -> Int)            -- ^ Selector del campo (ej. cantidad)
+    -> (Venta -> Int -> Venta)   -- ^ Actualizador del campo
+    -> String                    -- ^ Etiqueta para el reporte
+    -> [Venta] 
+    -> TecnicaEstadistica 
+    -> ResultadoProcesamiento
+completarDatoGenerico getField setField label ventas tecnica =
+    let valoresValidos = map getField $ filter (\v -> getField v > 0) ventas
         valorRelleno = case tecnica of
-            Media   -> calcularMedia cantidadesValidas
-            Mediana -> calcularMediana cantidadesValidas
-            Moda    -> calcularModa cantidadesValidas
+            Media   -> calcularMedia valoresValidos
+            Mediana -> calcularMediana valoresValidos
+            Moda    -> calcularModa valoresValidos
         
         (ventasActualizadas, idsModificados) = 
-            foldr (\ventaActual (ventasProcesadasAcc, idsModificadosAcc) -> 
-                if cantidad ventaActual == 0
-                then let ventaActualizada = ventaActual { cantidad = valorRelleno
-                                                         , totalVenta = valorRelleno * precioUnitario ventaActual }
-                     in (ventaActualizada : ventasProcesadasAcc, idVenta ventaActual : idsModificadosAcc)
-                else (ventaActual : ventasProcesadasAcc, idsModificadosAcc)
+            foldr (\ventaActual (accVentas, accIds) -> 
+                if getField ventaActual == 0
+                then let ventaNueva = setField ventaActual valorRelleno
+                         -- Recalcular total si es necesario, asumimos que el setter lo maneja o lo hacemos aquí?
+                         -- Los setters originales actualizaban totalVenta. 
+                         -- Lo manejaremos pasando una función que actualice todo.
+                         ventaCompleta = ventaNueva { totalVenta = cantidad ventaNueva * precioUnitario ventaNueva }
+                     in (ventaCompleta : accVentas, idVenta ventaActual : accIds)
+                else (ventaActual : accVentas, accIds)
             ) ([], []) ventas
-    
+            
     in ResultadoProcesamiento 
         { ventasProcesadas = ventasActualizadas
         , registrosModificados = idsModificados
-        , tecnicaUtilizada = "Cantidad - " ++ show tecnica
+        , tecnicaUtilizada = label ++ " - " ++ show tecnica
         }
 
 -- -----------------------------------------------------------------------------
+-- | Completa los datos faltantes de cantidad en las ventas.
+completarCantidadFaltante :: [Venta] -> TecnicaEstadistica -> ResultadoProcesamiento
+completarCantidadFaltante ventas = completarDatoGenerico cantidad (\v n -> v { cantidad = n }) "Cantidad" ventas
+
+-- -----------------------------------------------------------------------------
 -- | Completa los datos faltantes de precio unitario en las ventas.
---  Considera precioUnitario = 0 como dato faltante.
---  Utiliza funciones de orden superior (map, filter, foldr).
--- 
--- ==== Parámetros
---
--- * 'ventas'   : Lista de ventas a procesar.
--- * 'tecnica'  : Técnica estadística a utilizar.
---
--- ==== Retorno
---
--- * 'ResultadoProcesamiento' con ventas procesadas e IDs modificados.
---
--- ==== Ejemplo
---
--- >>> completarPrecioUnitarioFaltante [Venta 1 "2025-01-01" "P1" "Prod" "Cat" 2 0 200] Media
--- ResultadoProcesamiento {...}
 completarPrecioUnitarioFaltante :: [Venta] -> TecnicaEstadistica -> ResultadoProcesamiento
-completarPrecioUnitarioFaltante ventas tecnica =
-    let preciosValidos = map precioUnitario $ filter (\v -> precioUnitario v > 0) ventas
-        valorRelleno = case tecnica of
-            Media   -> calcularMedia preciosValidos
-            Mediana -> calcularMediana preciosValidos
-            Moda    -> calcularModa preciosValidos
-        
-        (ventasActualizadas, idsModificados) = 
-            foldr (\ventaActual (acumuladorVentasProcesadas, acumuladorIdsModificados) -> 
-                if precioUnitario ventaActual == 0
-                then let ventaActualizada = ventaActual { precioUnitario = valorRelleno
-                                                          , totalVenta = cantidad ventaActual * valorRelleno }
-                     in (ventaActualizada : acumuladorVentasProcesadas, idVenta ventaActual : acumuladorIdsModificados)
-                else (ventaActual : acumuladorVentasProcesadas, acumuladorIdsModificados)
-            ) ([], []) ventas
-    
-    in ResultadoProcesamiento 
-        { ventasProcesadas = ventasActualizadas
-        , registrosModificados = idsModificados
-        , tecnicaUtilizada = "Precio Unitario - " ++ show tecnica
-        }
+completarPrecioUnitarioFaltante ventas = completarDatoGenerico precioUnitario (\v n -> v { precioUnitario = n }) "Precio Unitario" ventas
 
 -- -----------------------------------------------------------------------------
 -- | Elimina ventas duplicadas basándose en múltiples criterios.

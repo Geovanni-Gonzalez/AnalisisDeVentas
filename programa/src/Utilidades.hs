@@ -166,10 +166,10 @@ diasSemanaES :: String -> String
 diasSemanaES dia = case dia of
     "Monday"    -> "Lunes"
     "Tuesday"   -> "Martes"
-    "Wednesday" -> "Miércoles"
+    "Wednesday" -> "Miercoles"
     "Thursday"  -> "Jueves"
     "Friday"    -> "Viernes"
-    "Saturday"  -> "Sábado"
+    "Saturday"  -> "Sabado"
     "Sunday"    -> "Domingo"
     _           -> dia
 

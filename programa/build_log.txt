@@ -1,0 +1,120 @@
+programa> configure (lib + exe)
+Configuring programa-0.1.0.0...
+programa> build (lib + exe) with ghc-9.10.3
+Preprocessing library for programa-0.1.0.0...
+Building library for programa-0.1.0.0...
+[1 of 5] Compiling Paths_programa
+[2 of 5] Compiling Venta
+C:\Users\geova\Github Desktop Repos\AnalisisDeVentas\programa\src\Venta.hs:1:1: warning: [GHC-85401] [-Wmissing-export-lists]
+    The export item `module Venta' is missing an export list
+  |
+1 | {-# LANGUAGE DeriveGeneric #-}
+  | ^
+
+C:\Users\geova\Github Desktop Repos\AnalisisDeVentas\programa\src\Venta.hs:20:1: warning: [GHC-66111] [-Wunused-imports]
+    The import of `Data.Maybe' is redundant
+      except perhaps to import instances from `Data.Maybe'
+    To import instances alone, use: import Data.Maybe()
+   |
+20 | import Data.Maybe (fromMaybe)
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:\Users\geova\Github Desktop Repos\AnalisisDeVentas\programa\src\Venta.hs:21:19: warning: [GHC-38856] [-Wunused-imports]
+    The import of foldl' from module `Data.List' is redundant
+   |
+21 | import Data.List (foldl', sortBy)
+   |                   ^^^^^^
+
+[3 of 5] Compiling Procesamiento
+C:\Users\geova\Github Desktop Repos\AnalisisDeVentas\programa\src\Procesamiento.hs:1:1: warning: [GHC-85401] [-Wmissing-export-lists]
+    The export item `module Procesamiento' is missing an export list
+  |
+1 | {-# LANGUAGE OverloadedStrings #-}
+  | ^
+
+C:\Users\geova\Github Desktop Repos\AnalisisDeVentas\programa\src\Procesamiento.hs:16:33: warning: [GHC-38856] [-Wunused-imports]
+    The import of `nub' from module `Data.List' is redundant
+   |
+16 | import Data.List (sort, sortBy, nub, group, groupBy)
+   |                                 ^^^
+
+C:\Users\geova\Github Desktop Repos\AnalisisDeVentas\programa\src\Procesamiento.hs:18:1: warning: [GHC-66111] [-Wunused-imports]
+    The qualified import of `Data.Map' is redundant
+      except perhaps to import instances from `Data.Map'
+    To import instances alone, use: import Data.Map()
+   |
+18 | import qualified Data.Map as Map
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:\Users\geova\Github Desktop Repos\AnalisisDeVentas\programa\src\Procesamiento.hs:54:9: warning: [GHC-63397] [-Wname-shadowing]
+    This binding for `cantidad' shadows the existing binding
+      imported from `Venta' at src\Procesamiento.hs:15:1-12
+      (and originally defined at src\Venta.hs:46:5-12)
+   |
+54 |         cantidad = length valores
+   |         ^^^^^^^^
+
+C:\Users\geova\Github Desktop Repos\AnalisisDeVentas\programa\src\Procesamiento.hs:55:8: warning: [GHC-18042] [-Wtype-defaults]
+    * Defaulting the type variable `a0' to type `Double' in the following constraints
+        (RealFrac a0)
+          arising from a use of `round' at src\Procesamiento.hs:55:8-12
+        (Fractional a0)
+          arising from a use of `/' at src\Procesamiento.hs:55:33
+        (Num a0)
+          arising from a use of `fromIntegral'
+          at src\Procesamiento.hs:55:15-26
+    * In the expression:
+        round (fromIntegral suma / fromIntegral cantidad)
+      In the expression:
+        let
+          suma = foldr (+) 0 valores
+          cantidad = length valores
+        in round (fromIntegral suma / fromIntegral cantidad)
+      In an equation for `calcularMedia':
+          calcularMedia valores
+            = let
+                suma = foldr (+) 0 valores
+                cantidad = length valores
+              in round (fromIntegral suma / fromIntegral cantidad)
+   |
+55 |     in round (fromIntegral suma / fromIntegral cantidad)
+   |        ^^^^^
+
+C:\Users\geova\Github Desktop Repos\AnalisisDeVentas\programa\src\Procesamiento.hs:104:39: warning: [GHC-63394] [-Wx-partial]
+    In the use of `head'
+    (imported from Prelude, but defined in GHC.Internal.List):
+    "This is a partial function, it throws an error on empty lists. Use pattern matching, 'Data.List.uncons' or 'Data.Maybe.listToMaybe' instead. Consider refactoring to use "Data.List.NonEmpty"."
+    |
+104 |     let frecuencias = map (\grupo -> (head grupo, length grupo)) $ group $ sort valores
+    |                                       ^^^^
+
+[4 of 5] Compiling Estadisticas
+C:\Users\geova\Github Desktop Repos\AnalisisDeVentas\programa\src\Estadisticas.hs:1:1: warning: [GHC-85401] [-Wmissing-export-lists]
+    The export item `module Estadisticas' is missing an export list
+  |
+1 | {-# LANGUAGE OverloadedStrings #-}
+  | ^
+
+C:\Users\geova\Github Desktop Repos\AnalisisDeVentas\programa\src\Estadisticas.hs:17:54: warning: [GHC-38856] [-Wunused-imports]
+    The import of `reverse, take' from module `Data.List' is redundant
+   |
+17 | import Data.List (nub, minimumBy, maximumBy, sortBy, reverse, take)
+   |                                                      ^^^^^^^^^^^^^
+
+[5 of 5] Compiling Utilidades
+C:\Users\geova\Github Desktop Repos\AnalisisDeVentas\programa\src\Utilidades.hs:111:9: error: [GHC-58481]
+    parse error (possibly incorrect indentation or mismatched brackets)
+    |
+111 |         Right ventasNuevas -> do
+    |         ^
+
+
+Error: [S-7282]
+       Stack failed to execute the build plan.
+       
+       While executing the build plan, Stack encountered the error:
+       
+       [S-7011]
+       While building package programa-0.1.0.0 (scroll up to its section to see the error) using:
+       C:\Users\geova\AppData\Roaming\stack\setup-exe-cache\x86_64-windows\Cabal-simple_O_vy6YIf_3.12.1.0_ghc-9.10.3.exe --verbose=1 --builddir=.stack-work\dist\1a191874 build lib:programa exe:programa-exe --ghc-options ""
+       Process exited with code: ExitFailure 1 

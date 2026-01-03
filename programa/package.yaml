@@ -28,6 +28,8 @@ dependencies:
 - containers
 - time
 - aeson-pretty
+- hspec
+- ansi-terminal
 
 ghc-options:
 - -Wall
@@ -60,6 +62,7 @@ executables:
     - containers
     - time
     - aeson-pretty
+    - ansi-terminal
 tests:
   programa-test:
     main:                Spec.hs
@@ -72,3 +75,4 @@ tests:
     - programa
     - aeson
     - time
+    - hspec
