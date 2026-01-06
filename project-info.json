@@ -1,32 +1,36 @@
 {
+    "project": "Análisis de Ventas",
     "tech": [
         "Haskell",
-        "Stack"
+        "Stack",
+        "Ansi-terminal",
+        "Aeson"
     ],
     "features": [
-        "Interfaz de Consola Moderna (Colores y UX Intuitiva)",
-        "Limpieza de Datos (Imputación por Media/Mediana/Moda)",
-        "Análisis Temporal (Crecimiento Trimestral, Días Pico)",
-        "Reportes Estadísticos (Top 5 Categorías, KPIs)",
-        "Motor de Búsqueda de Ventas por Fechas",
-        "Sistema de Importación con Validación de Duplicados",
-        "Arquitectura Modular y Tipada Estáticamente"
+        "Modern Console Interface (ANSI Colors & UX)",
+        "Data Cleaning (Mean/Median/Mode Imputation)",
+        "Temporal Analysis (Quarterly Growth, Peak Days)",
+        "Statistical Reports (Top 5 Categories, KPIs)",
+        "Sales Search Engine by Dates",
+        "Import System with Duplicate Validation",
+        "Modular & Statically Typed Architecture"
     ],
     "stack": {
         "language": "Haskell",
         "framework": "Console App",
         "tools": [
-            "Hspec",
-            "Ansi-Terminal",
-            "Aeson",
+            "Hspec (Testing)",
             "Time",
-            "Bytestring"
-        ]
+            "Bytestring",
+            "Stack"
+        ],
+        "database": "JSON / CSV (Local Files)"
     },
-    "screenshots": ["https://raw.githubusercontent.com/Geovanni-González/AnalisisDeVentas/main/screenshots/principalImage.jpg"],
-
+    "screenshots": [
+        "https://raw.githubusercontent.com/Geovanni-González/AnalisisDeVentas/main/screenshots/principalImage.jpg"
+    ],
     "description": {
-        "es": "Aplicación de consola profesional para el análisis y procesamiento de datos de ventas. Desarrollada en Haskell, implementa técnicas estadísticas avanzadas para la limpieza de datos y generación de reportes financieros. Cuenta con una interfaz moderna en terminal optimizada para Windows, asegurando compatibilidad y robustez.",
-        "en": "Professional console application for sales data analysis and processing. Developed in Haskell, it implements advanced statistical techniques for data cleaning and financial report generation. Features a modern terminal interface optimized for Windows, ensuring compatibility and robustness."
+        "es": "Aplicación de consola profesional para el análisis y procesamiento de datos de ventas en Haskell, implementando técnicas estadísticas avanzadas para limpieza de datos y reportes financieros.",
+        "en": "Professional console application for sales data analysis and processing in Haskell, implementing advanced statistical techniques for data cleaning and financial report generation."
     }
 }
