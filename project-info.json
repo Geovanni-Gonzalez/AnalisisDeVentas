@@ -1,36 +1,56 @@
 {
-    "project": "Análisis de Ventas",
-    "tech": [
-        "Haskell",
-        "Stack",
-        "Ansi-terminal",
-        "Aeson"
-    ],
-    "features": [
-        "Modern Console Interface (ANSI Colors & UX)",
-        "Data Cleaning (Mean/Median/Mode Imputation)",
-        "Temporal Analysis (Quarterly Growth, Peak Days)",
-        "Statistical Reports (Top 5 Categories, KPIs)",
-        "Sales Search Engine by Dates",
-        "Import System with Duplicate Validation",
-        "Modular & Statically Typed Architecture"
-    ],
-    "stack": {
-        "language": "Haskell",
-        "framework": "Console App",
-        "tools": [
-            "Hspec (Testing)",
-            "Time",
-            "Bytestring",
-            "Stack"
+    "en": {
+        "tech": [
+            "Haskell",
+            "Stack",
+            "Functional Programming",
+            "Statistics"
         ],
-        "database": "JSON / CSV (Local Files)"
+        "features": [
+            "Modern Console Interface with ANSI UX and banners",
+            "Advanced Data Cleaning (Mean/Median/Mode Imputation)",
+            "Temporal analysis: Quarterly Growth and Peak Day detection",
+            "Statistical reporting engine (Top 5 Categories, Financial KPIs)",
+            "Modular & statically typed architecture with Hspec testing"
+        ],
+        "stack": {
+            "language": "Haskell",
+            "framework": "Native CLI App",
+            "tools": [
+                "Aeson (JSON)",
+                "Stack",
+                "Hspec (TDD)"
+            ],
+            "database": "Structured JSON / CSV"
+        },
+        "screenshots": [],
+        "description": "A robust financial analytical engine developed in Haskell, designed to process large-scale commercial datasets with mathematical rigor. The application employs high-order functions to implement sophisticated data cleaning techniques, such as mean/median imputation, and provides deep insights through quarterly growth analysis and KPI generation. With a clean TUI and a zero-runtime-error promise thanks to Haskell's type system, it transforms raw sales data into actionable business intelligence."
     },
-    "screenshots": [
-        "https://raw.githubusercontent.com/Geovanni-González/AnalisisDeVentas/main/screenshots/principalImage.jpg"
-    ],
-    "description": {
-        "es": "Aplicación de consola profesional para el análisis y procesamiento de datos de ventas en Haskell, implementando técnicas estadísticas avanzadas para limpieza de datos y reportes financieros.",
-        "en": "Professional console application for sales data analysis and processing in Haskell, implementing advanced statistical techniques for data cleaning and financial report generation."
+    "es": {
+        "tech": [
+            "Haskell",
+            "Stack",
+            "Programación Funcional",
+            "Estadística"
+        ],
+        "features": [
+            "Interfaz moderna en consola con UX ANSI y báners",
+            "Limpieza avanzada de datos (Imputación de Media/Mediana/Moda)",
+            "Análisis temporal: Crecimiento trimestral y días pico",
+            "Motor de informes estadísticos (Categorías Top 5, KPIs)",
+            "Arquitectura modular y estáticamente tipada con pruebas Hspec"
+        ],
+        "stack": {
+            "language": "Haskell",
+            "framework": "Aplicación CLI Nativa",
+            "tools": [
+                "Aeson (JSON)",
+                "Stack",
+                "Hspec (TDD)"
+            ],
+            "database": "Archivos estructurados JSON / CSV"
+        },
+        "screenshots": [],
+        "description": "Un robusto motor analítico financiero desarrollado en Haskell, diseñado para procesar conjuntos de datos comerciales a gran escala con rigor matemático. La aplicación emplea funciones de orden superior para implementar técnicas sofisticadas de limpieza de datos, como la imputación de media/mediana, y proporciona análisis profundos como el crecimiento trimestral y la generación de KPIs. Transforma los datos de ventas brutos en inteligencia de negocios procesable."
     }
 }
