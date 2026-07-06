@@ -1,2 +1,37 @@
 .stack-work/
+.stack-root/
+**/.stack-root/
 *~
+# C / C++ / native builds
+*.o
+*.obj
+*.exe
+*.out
+*.dll
+*.so
+*.dylib
+bin/
+obj/
+debug/
+release/
+# Haskell
+dist/
+dist-newstyle/
+*.hi
+# Local agent/editor state
+.claude/
+CLAUDE.md
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+# OS/editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
